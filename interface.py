@@ -2,14 +2,15 @@ import pygame
 from node import Node
 from link import Link
 
+
 def connexionCheck(me, node):
     for link in node.links:
         if link.node1 == me or link.node1 == me:
             return True
     return False
 
-class Interface:
 
+class Interface:
 
     def __init__(self):
 
@@ -30,6 +31,8 @@ class Interface:
         self.oldLeft = False
         self.oldRight = False
         self.oldMiddle = False
+
+        self.ghostNodePos = pygame.Vector2(0, 0)
 
         self.offsetPos = None
 
@@ -64,12 +67,15 @@ class Interface:
         elif self.state == "dragging":
             self.state = "idle"
         elif self.state == "linking":
-            if self.hovered and self.hovered != self.selected and not connexionCheck(self.selected, self.hovered):
+            diff = self.selected.pos - mousePos
+            dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+            if self.hovered and self.hovered != self.selected and not connexionCheck(self.selected,
+                                                                                     self.hovered) and dist < world.maxLinkLength:
                 # Ajoute un lien
                 world.links.append(Link(self.hovered, self.selected))
-            elif not self.hovered:
+            else:
                 # Ajoute un node avec un lien
-                node = Node(mousePos)
+                node = Node(self.ghostNodePos)
                 world.nodes.append(node)
                 world.links.append(Link(node, self.selected))
 
@@ -103,7 +109,10 @@ class Interface:
     def pressMiddle(self, world, screen):
         mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), screen)
         if self.state == "idle":
-            pass
+            if self.hovered:
+                self.selected = self.hovered
+                self.offsetPos = mousePos - self.selected.pos
+                self.state = "dragging"
         elif self.state == "dragging":
             pass
         elif self.state == "linking":
@@ -116,7 +125,7 @@ class Interface:
         if self.state == "idle":
             pass
         elif self.state == "dragging":
-            pass
+            self.state = "idle"
         elif self.state == "linking":
             pass
         elif self.state == "deleting":
@@ -124,7 +133,6 @@ class Interface:
 
     def update(self, world, screen):
         mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), screen)
-
 
         # Obtention de l'état de la sourie
         left, middle, right = pygame.mouse.get_pressed()
@@ -148,10 +156,9 @@ class Interface:
         self.oldRight = right
         self.oldMiddle = middle
 
-
         self.hovered = None
         # Obtien la liste des points à proximité du curseur
-        proximities = world.getNodesInRange(mousePos, 2)
+        proximities = world.getNodesInRange(mousePos, world.maxLinkLength)
         self.linkables = []
         if proximities:
             # Détermine quel nodes peuvent être connectés
@@ -160,8 +167,6 @@ class Interface:
 
             if proximities[0]["dist"] < proximities[0]["node"].size:
                 self.hovered = proximities[0]["node"]
-
-
 
         if self.state == "idle":
             if self.allowAddNode:
@@ -173,23 +178,32 @@ class Interface:
                 if self.selected.deleteFlag:
                     self.selected = None
                 else:
-                    self.selected.force += (mousePos+self.offsetPos-self.selected.pos)*10000-self.selected.vel*1000
+                    self.selected.force += (
+                                                   mousePos + self.offsetPos - self.selected.pos) * 10000 - self.selected.vel * 1000
 
         elif self.state == "linking":
+
             if self.selected.deleteFlag:
                 self.selected = None
+            else:
+                diff = mousePos - self.selected.pos
+                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+                if dist <= 0:
+                    self.ghostNodePos = self.selected.pose
+                elif dist > world.maxLinkLength:
+                    self.ghostNodePos = self.selected.pos + diff / dist * world.maxLinkLength
+                elif dist < world.minLinkLength:
+                    self.ghostNodePos = self.selected.pos + diff / dist * world.minLinkLength
+                else:
+                    self.ghostNodePos = mousePos
+
 
         elif self.state == "deleting":
             # Supprime les nodes
             if self.hovered:
                 self.hovered.delete()
 
-
-
-
-
     def draw(self, world, screen):
-
 
         # Affiche la selection
         img = self.font.render("hovered: " + str(self.hovered), True, "#000000")
@@ -197,7 +211,6 @@ class Interface:
 
         img = self.font.render("selected: " + str(self.selected), True, "#000000")
         screen.blit(img, pygame.Vector2(10, 30))
-
 
         if self.state == "idle":
             if self.allowAddNode:
@@ -212,8 +225,10 @@ class Interface:
 
         elif self.state == "linking":
             pos = world.camera.posToScreen(self.selected.pos, screen)
+            ghostPos = world.camera.posToScreen(self.ghostNodePos, screen)
+            pygame.draw.circle(screen, "#ffffff", pos, world.maxLinkLength * world.camera.zoom, 1)
+            pygame.draw.circle(screen, "#ffffff", ghostPos, 0.2 * world.camera.zoom, 1)
             pygame.draw.line(screen, "#ffffff", pos, pygame.mouse.get_pos())
 
         elif self.state == "deleting":
             pass
-

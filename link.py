@@ -14,9 +14,9 @@ class Link(object):
         diff = self.node1.pos - self.node2.pos
         self.length = (diff.x**2+diff.y**2)**0.5
         self.physic = physic
-        self.KP = 200000
+        self.KP = 400000
         self.KD = 200
-        self.KI = 1000
+        self.KI = 10000
         self.friction = 20
         self.i = 0
         self.mass = self.length

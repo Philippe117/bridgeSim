@@ -9,6 +9,8 @@ class World:
         super().__init__()
         self.nodes = []
         self.links = []
+        self.maxLinkLength = 2
+        self.minLinkLength = 0.5
         self.level = level
         self.level(self)
         self.camera = camera
@@ -18,9 +20,9 @@ class World:
         # settle physic (Undestructible)
         for i in range(2000):
             for node in self.nodes:
-                node.update(self, 0.0001)
+                node.update(self, 0.0005)
             for link in self.links:
-                link.update(self, 0.0001)
+                link.update(self, 0.0005)
 
         # Revive les objets
         for node in self.nodes:
