@@ -14,68 +14,59 @@ clock = pygame.time.Clock()
 running = True
 
 
-def config(self, nb = 5, h = 3):
+def config(self, nb=5, h=2):
+  node1 = Node(pygame.Vector2(-10, 0), self, 0, [1, 2, 3], 0, 0, physic=False)
+  node2 = Node(pygame.Vector2(-10, h), self, 0, [1, 2, 3], 0, 0, physic=False)
 
-
-
-    node1 = Node(pygame.Vector2(-10, 0), physic=False)
-    node2 = Node(pygame.Vector2(-10, h), physic=False)
-    self.nodes.append(node1)
-    self.nodes.append(node2)
-
-    self.links.append(Link(node1, node2))
-    # truss
+  Link(node1, node2, self, 0, 1, 1)
+  # truss
+  oldNode1 = node1
+  oldNode2 = node2
+  for i in range(nb * 2 + 1):
+    node1 = Node(oldNode1.pos + pygame.Vector2(2, 0 * cos(i / nb * 3.14 / 2)), self, 0, [1, 2, 3], 0, 0)
+    node2 = Node(oldNode2.pos + pygame.Vector2(2, -((h - 0.5) / nb) * cos(i / nb * 3.14 / 2)), self, 0, [1, 2, 3], 0, 0)
+    Link(node1, oldNode1, self, 0, 1, 1)
+    Link(node2, oldNode2, self, 0, 1, 1)
+    Link(node1, oldNode2, self, 0, 1, 1)
+    Link(node2, oldNode1, self, 0, 1, 1)
+    Link(node1, node2, self, 0, 1, 1)
     oldNode1 = node1
     oldNode2 = node2
-    for i in range(nb*2+1):
-        node1 = Node(oldNode1.pos+pygame.Vector2(2, 0*cos(i/nb*3.14/2)))
-        node2 = Node(oldNode2.pos+pygame.Vector2(2, -((h-1)/nb)*cos(i/nb*3.14/2)))
-        self.nodes.append(node1)
-        self.nodes.append(node2)
-        self.links.append(Link(node1, oldNode1))
-        self.links.append(Link(node2, oldNode2))
-        self.links.append(Link(node1, oldNode2))
-        self.links.append(Link(node2, oldNode1))
-        self.links.append(Link(node1, node2))
-        oldNode1 = node1
-        oldNode2 = node2
 
-    oldNode1.physic = False
-    oldNode2.physic = False
+  oldNode1.physic = False
+  oldNode2.physic = False
 
 
 camera = Camera(pygame.Vector2(1, 1), 50)
-world = World(camera, pygame.Vector2(0, 9.81), config)
+world = World(camera, screen, pygame.Vector2(0, 9.81), config)
 interface = Interface()
 
-
-fps = 30
-world.start()
+fps = 60
+world.start(1 / fps, camera)
 
 while running:
 
-    mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), screen)
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEWHEEL:
-            # Zoom
-            world.camera.zoom *= 1 + event.y * 0.1
-            world.camera.pos += (mousePos - world.camera.pos) * (event.y * 0.1)
+  mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), screen)
+  # poll for events
+  # pygame.QUIT event means the user clicked X to close your window
+  for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+      running = False
+    elif event.type == pygame.MOUSEWHEEL:
+      # Zoom
+      world.camera.zoom *= 1 + event.y * 0.1
+      world.camera.pos += (mousePos - world.camera.pos) * (event.y * 0.1)
 
-    world.update(1/fps)
+  interface.update(world)
+  world.update(1 / fps)
 
-    interface.update(world, screen)
+  world.draw(camera)
 
-    world.draw(screen)
+  interface.draw(world)
 
-    interface.draw(world, screen)
+  # flip() the display to put your work on screen
+  pygame.display.flip()
 
-    # flip() the display to put your work on screen
-    pygame.display.flip()
-
-    clock.tick(fps)  # limits FPS to 60
+  clock.tick(fps)  # limits FPS to 60
 
 pygame.quit()
