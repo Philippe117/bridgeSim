@@ -20,30 +20,27 @@ class World:
     self.minLinkLength = 0.5
     self.camera = camera
     self.screen = screen
-    self.friction = 10000
-    self.collisionGroups = [[]] * 4
-    self.drawingGroups = [[]] * 4
-    self.updateGroups = [[]] * 4
+    self.friction = 50000
+    self.collisionGroups = [[],[],[],[]]
+    self.drawingGroups = [[],[],[],[]]
+    self.updateGroups = [[],[],[],[]]
     self.level = level
     self.level(self)
 
   def start(self, dt, camera):
     # settle physic (Undestructible)
-    overcompute = 1
+    overcompute = 2
     for i in range(overcompute):
       self.update(dt)
-      # self.draw(camera)
-      # pygame.display.flip()
 
   def draw(self, camera):
 
-    self.screen.fill("#115577")
     for drawingGroup in self.drawingGroups:
       for object in drawingGroup:
         object.draw(camera)
 
   def update(self, dt):
-    overcompute = 2
+    overcompute = 40
     for i in range(overcompute):
       for updateGroup in self.updateGroups:
         for object in updateGroup:

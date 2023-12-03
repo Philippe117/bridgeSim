@@ -60,8 +60,8 @@ while running:
   interface.update(world)
   world.update(1 / fps)
 
+  screen.fill("#115577")
   world.draw(camera)
-
   interface.draw(world)
 
   # flip() the display to put your work on screen
