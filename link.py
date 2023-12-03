@@ -4,44 +4,37 @@ from object import Object
 
 
 class Link(Object):
-  def __init__(self, node1, node2, world, collisionGroup, drawingGroup, updateGroup, physic=True):
+  def __init__(self, node1, node2, world, collisionGroup, drawingGroup, updateGroup, physic=True, density=1 ):
     # node1: Node
     # node2: Node
 
     pos = (node1.pos + node2.pos) / 2
     super().__init__(pos, world, collisionGroup, [], drawingGroup, updateGroup)
+    diff = node1.pos - node2.pos
+    self.density = density
+    self.length = (diff.x ** 2 + diff.y ** 2) ** 0.5
+    self.mass = self.length*self.density
     self.connectNode1(node1)
     self.connectNode2(node2)
-    diff = self.node1.pos - self.node2.pos
-    self.length = (diff.x ** 2 + diff.y ** 2) ** 0.5
-    self.length2 = self.length
     self.physic = physic
-    self.KP = 1400000
-    self.KD = 100000
+    self.KP = 800000
+    self.KD = 400000
     self.KI = 4000
     self.friction = 20000
-    # self.KP = 60000
-    # self.KD = 2000
-    # self.KI = 50000
-    # self.friction = 20
+    self.brakePoint = 12000
     self.i = 0
-    self.mass = self.length*1
     self.load = 0
-    self.load2 = 0
-    self.brakePoint = 68000
-    self.maxForce = (self.node1.mass + self.node2.mass)*2
-    self.oldLoad = 0
     self.oldErr = 0
-    self.delta = 0
-    self.err = 0
 
   def connectNode1(self, node):
     self.node1 = node
     self.node1.addLink(self)
+    self.node1.mass += self.mass/2
 
   def connectNode2(self, node):
     self.node2 = node
     self.node2.addLink(self)
+    self.node1.mass += self.mass/2
 
   def draw(self, camera):
     pos1 = camera.posToScreen(self.node1.oldPos, self.world.screen)
@@ -56,18 +49,13 @@ class Link(Object):
       diff = self.node1.pos - self.node2.pos
       length = (diff.x ** 2 + diff.y ** 2) ** 0.5
       unit = diff / length
-      self.err = length - self.length
+      err = length - self.length
 
-      self.length += (self.length2-self.length)*0.01
+      delta = abs(err)*(err-self.oldErr)/dt
+      self.oldErr = err
+      self.i += err * dt
 
-
-      #delta = self.node1.vel.dot(unit) - self.node2.vel.dot(unit)
-      self.delta = abs(self.err)*(self.err-self.oldErr)/dt
-      #self.delta += ((self.err-self.oldErr)/dt-self.delta)*1
-      self.oldErr = self.err
-      self.i += self.err * dt
-
-      self.load = self.err * self.KP + self.delta * self.KD + self.i * self.KI
+      self.load = err * self.KP + delta * self.KD + self.i * self.KI
 
       if abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
         load = self.load
@@ -84,8 +72,10 @@ class Link(Object):
   def delete(self):
     super().delete()
     if not self.node1.deleteFlag:
+      self.node1.mass -= self.mass/2
       self.node1.links.remove(self)
     if not self.node2.deleteFlag:
+      self.node2.mass -= self.mass/2
       self.node2.links.remove(self)
 
   def collide(self, other):

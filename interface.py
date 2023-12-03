@@ -178,7 +178,7 @@ class Interface:
           self.selected = None
         else:
           #self.selected.force += (mousePos + self.offsetPos - self.selected.pos) * 80000 - self.selected.vel * 1000
-          self.selected.force += (mousePos + self.offsetPos - self.selected.pos) * 8000 - self.selected.vel * 1000
+          self.selected.force += (mousePos + self.offsetPos - self.selected.pos) * 50000 - self.selected.vel * 1000
 
     elif self.state == "linking":
 

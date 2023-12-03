@@ -29,7 +29,7 @@ class Node(Object):
 
   def update(self, dt):
     if self.physic:
-      self.force += self.world.gravity * self.mass * min(1, self.age*10)
+      self.force += self.world.gravity * self.mass * min(1, self.age*1)
       self.force -= self.vel * (self.world.friction * self.size * self.size) * dt
       self.acc = self.force / self.mass
       self.vel += self.acc * dt

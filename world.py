@@ -40,7 +40,7 @@ class World:
         object.draw(camera)
 
   def update(self, dt):
-    overcompute = 40
+    overcompute = 20
     for i in range(overcompute):
       for updateGroup in self.updateGroups:
         for object in updateGroup:
