@@ -1,13 +1,9 @@
 # Example file showing a basic pygame "game loop"
-import pygame
-from wood import WoodNode
+
 from world import World
 from wood import *
-from pave import *
 from camera import *
-from math import cos, sin
 from interface import Interface
-from car import CarNode, CarLink, TireNode
 from ground import *
 
 # pygame setup

@@ -38,7 +38,8 @@ class Node(Object):
     def update(self, dt):
         super().update(dt)
         if not self.locked:
-            self.force += self.world.gravity * self.mass * min(1, self.age * 1)
+            if self.age > 5:
+                self.force += self.world.gravity * self.mass * min(1, (self.age-5) * 1)
             self.force -= self.vel * (self.world.friction * self.radius * self.radius) * dt
             self.acc = self.force / self.mass
             self.vel += self.acc * dt
@@ -61,7 +62,14 @@ class Node(Object):
         X2 = pygame.Vector2(X1.y, -X1.x)
         pygame.draw.line(self.world.screen, "#000000", pos-X1, pos+X1)
         pygame.draw.line(self.world.screen, "#000000", pos-X2, pos+X2)
-        #
+
+        # Dessine l'age'
+        if self.age < 5:
+            font = pygame.font.SysFont("silomttf", 24)
+            img = font.render(str(int(5-self.age))+"s", True, "#000000")
+            self.world.screen.blit(img, pos+pygame.Vector2(20, -20))
+
+
         # # Dessine le id
         # font = pygame.font.SysFont("silomttf", 24)
         # img = font.render(str(self.id), True, "#000000")

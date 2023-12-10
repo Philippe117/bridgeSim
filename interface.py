@@ -1,13 +1,15 @@
-import pygame
-from wood import *
 from wood import *
 from pave import *
+from steel import *
 from car import *
 
 
 def connexionCheck(me, node):
     for link in node.links:
         if link.node1 == me or link.node1 == me:
+            return True
+    for link in me.links:
+        if link.node1 == node or link.node1 == node:
             return True
     return False
 
@@ -150,7 +152,6 @@ class Interface:
                 world.camera.zoom *= 1 + event.y * 0.1
                 world.camera.pos += (mousePos - world.camera.pos) * (event.y * 0.1)
 
-
         # Obtention de l'état de la sourie
         left, middle, right = pygame.mouse.get_pressed()
 
@@ -201,23 +202,24 @@ class Interface:
             elif keys[pygame.K_4]:
                 self.linkType = CarLink
                 self.nodeType = TireNode
-            elif keys[pygame.K_5] and not self.onsCar:
+            elif keys[pygame.K_5]:
+                self.linkType = SteelLink
+                self.nodeType = SteelNode
+            elif keys[pygame.K_6] and not self.onsCar:
 
                 x = -19.5
                 y = -0.7
                 wheel1 = TireNode(pygame.Vector2(x, y), world)
-                wheel2 = TireNode(pygame.Vector2(x+2, y), world)
-                top1 = CarNode(pygame.Vector2(x, y-0.6), world)
-                top2 = CarNode(pygame.Vector2(x+2, y-0.6), world)
+                wheel2 = TireNode(pygame.Vector2(x + 2, y), world)
+                top1 = CarNode(pygame.Vector2(x, y - 0.6), world)
+                top2 = CarNode(pygame.Vector2(x + 2, y - 0.6), world)
                 CarLink(wheel1, wheel2, world)
                 CarLink(top1, top2, world)
                 CarLink(wheel1, top1, world)
                 CarLink(wheel2, top2, world)
                 CarLink(wheel1, top2, world)
                 CarLink(wheel2, top1, world)
-
-
-            self.onsCar = keys[pygame.K_5]
+            self.onsCar = keys[pygame.K_6]
         # Permet de déplacer un node avec la sourie
         elif self.state == "dragging":
             if self.selected:
@@ -226,7 +228,7 @@ class Interface:
                 else:
                     # self.selected.force += (mousePos + self.offsetPos - self.selected.pos) * 80000 - self.selected.vel * 1000
                     self.selected.force += (
-                                                   mousePos - self.offsetPos - self.selected.pos) * 1000 - self.selected.vel * 100
+                                               mousePos - self.offsetPos - self.selected.pos) * 1000 - self.selected.vel * 100
 
         elif self.state == "linking":
 
@@ -265,7 +267,6 @@ class Interface:
         world.screen.blit(img, pygame.Vector2(10, 50))
         img = self.font.render("NodeTool: " + str(self.nodeType), True, "#000000")
         world.screen.blit(img, pygame.Vector2(10, 70))
-
 
         if self.state == "idle":
             if self.allowAddNode:
