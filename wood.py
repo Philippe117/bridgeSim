@@ -1,0 +1,17 @@
+from link import Link
+from node import Node
+
+
+class WoodLink(Link):
+    maxLength = 2
+    minLength = 0.5
+
+    def __init__(self, node1, node2, world):
+        super().__init__(node1, node2, world, collisionGroup=1, density=0.5,
+                         KP=100000, KD=50, KI=0, friction=2000, brakePoint=2000, color="#BA8E4A", radius=0.1, indestructible=False, locked=False, drawingGroup=2, N=25, mu=1)
+
+
+class WoodNode(Node):
+    def __init__(self, pos, world):
+        super().__init__(pos, world, collisionGroup=1, collideWithGoups=[], mass=1,
+                         radius=0.1, color="#63462D", indestructible=False, locked=False, drawingGroup=3, N=25, mu=1)
