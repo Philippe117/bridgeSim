@@ -10,18 +10,17 @@ from math import cos, sin
 class Node(Object):
 
     def __init__(self, pos, world, collisionGroup, collideWithGoups, mass=2,
-                 radius=0.12, locked=False, indestructible=True, color="#ffffff", drawingGroup=1, N=10, mu=10):
+                 radius=0.12, locked=False, indestructible=True, color="#ffffff", drawingGroup=1, N=10, mu=10, startDelay=5):
         # pos: pygame.Vector2
         # links: Link[]
 
-        super().__init__(pos, world, collisionGroup, collideWithGoups, drawingGroup, 1, radius, locked, indestructible, N, mu, mass)
+        super().__init__(pos, world, collisionGroup, collideWithGoups, drawingGroup, 1, radius, locked, indestructible, N, mu, mass, startDelay)
         self.links = []
         self.vel = pygame.Vector2(0, 0)  # m/s
         self.acc = pygame.Vector2(0, 0)  # m/s^2
         self.force = pygame.Vector2(0, 0)  # N
         self.mass = mass  # Kg
         self.world.nodes.append(self)
-        self.age = 0  # s
         self.oldVel = copy(self.vel)
         self.oldPos = copy(self.pos)
         self.color = color
@@ -38,8 +37,8 @@ class Node(Object):
     def update(self, dt):
         super().update(dt)
         if not self.locked:
-            if self.age > 5:
-                self.force += self.world.gravity * self.mass * min(1, (self.age-5) * 1)
+            if self.age > 0:
+                self.force += self.world.gravity * self.mass * min(1, (self.age) * 1)
             self.force -= self.vel * (self.world.friction * self.radius * self.radius) * dt
             self.acc = self.force / self.mass
             self.vel += self.acc * dt
@@ -50,7 +49,6 @@ class Node(Object):
 
         self.force = pygame.Vector2(0, 0)
         self.torque = 0
-        self.age += dt
 
     def draw(self, camera):
         pos = camera.posToScreen(self.oldPos, self.world.screen)
@@ -64,9 +62,9 @@ class Node(Object):
         pygame.draw.line(self.world.screen, "#000000", pos-X2, pos+X2)
 
         # Dessine l'age'
-        if self.age < 5:
+        if self.age < 0:
             font = pygame.font.SysFont("silomttf", 24)
-            img = font.render(str(int(5-self.age))+"s", True, "#000000")
+            img = font.render(str(int(-self.age))+"s", True, "#000000")
             self.world.screen.blit(img, pos+pygame.Vector2(20, -20))
 
 

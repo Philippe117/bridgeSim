@@ -8,9 +8,9 @@ class World:
         self.camera = camera
         self.screen = screen
         self.friction = 1000
-        self.collisionGroups = [[], [], [], []]
-        self.drawingGroups = [[], [], [], []]
-        self.updateGroups = [[], [], [], []]
+        self.collisionGroups = [[], [], [], [], [], [], [], []]
+        self.drawingGroups = [[], [], [], [], [], [], [], [], [], []]
+        self.updateGroups = [[], [], [], [], [], [], [], [], [], []]
         self.level = level
         self.level(self)
         self.downLimit = 20

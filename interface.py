@@ -2,6 +2,7 @@ from wood import *
 from pave import *
 from steel import *
 from car import *
+from mecanical import *
 
 
 def connexionCheck(me, node):
@@ -205,21 +206,17 @@ class Interface:
             elif keys[pygame.K_5]:
                 self.linkType = SteelLink
                 self.nodeType = SteelNode
-            elif keys[pygame.K_6] and not self.onsCar:
-
-                x = -19.5
-                y = -0.7
-                wheel1 = TireNode(pygame.Vector2(x, y), world)
-                wheel2 = TireNode(pygame.Vector2(x + 2, y), world)
-                top1 = CarNode(pygame.Vector2(x, y - 0.6), world)
-                top2 = CarNode(pygame.Vector2(x + 2, y - 0.6), world)
-                CarLink(wheel1, wheel2, world)
-                CarLink(top1, top2, world)
-                CarLink(wheel1, top1, world)
-                CarLink(wheel2, top2, world)
-                CarLink(wheel1, top2, world)
-                CarLink(wheel2, top1, world)
-            self.onsCar = keys[pygame.K_6]
+            elif keys[pygame.K_6]:
+                self.linkType = JackLink
+                self.nodeType = JackNode
+            elif keys[pygame.K_7]:
+                self.linkType = PullerLink
+                self.nodeType = JackNode
+            elif keys[pygame.K_0] and not self.onsCar:
+                pos = pygame.Vector2(-18, -0.7)
+                size = pygame.Vector2(3, 1)
+                Car(pos, size, world)
+            self.onsCar = keys[pygame.K_0]
         # Permet de déplacer un node avec la sourie
         elif self.state == "dragging":
             if self.selected:

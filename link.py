@@ -10,7 +10,7 @@ class Link(Object):
     def __init__(self, node1, node2, world, collisionGroup=0, density=1,
                  KP=100000, KD=10000, KI=4000, friction=2000, brakePoint=15000, color="#888888", radius=0.1,
                  locked=False, indestructible=True,
-                 drawingGroup=0, N=50, mu=10):
+                 drawingGroup=0, N=50, mu=10, startDelay=0):
         # node1: Node
         # node2: Node
 
@@ -20,7 +20,7 @@ class Link(Object):
         self.length = (diff.x ** 2 + diff.y ** 2) ** 0.5
         self.mass = self.length * self.density
         super().__init__(pos, world, collisionGroup, [], drawingGroup, 0, radius, locked, indestructible, N, mu,
-                         self.mass)
+                         self.mass, startDelay)
 
         self.connectNode1(node1)
         self.connectNode2(node2)

@@ -5,7 +5,7 @@ class Object(ABC):
     id = 0
 
     def __init__(self, pos, world, collisionGroup, collideWithGroups, drawingGroup, updateGroup, radius=1, locked=False,
-                 indestructible=False, N=1, mu=1, mass=1):
+                 indestructible=False, N=1, mu=1, mass=1, startDelay=5):
         self.real = True
         self.physic = True
         self.mass = mass
@@ -16,6 +16,7 @@ class Object(ABC):
         self.indestructible = indestructible
         Object.id += 1
         self.pos = pos
+        self.age = -startDelay
         self.collideWithGroups = collideWithGroups
         if collisionGroup >= 0:
             self.collisionGroup = self.world.collisionGroups[collisionGroup]
@@ -58,6 +59,8 @@ class Object(ABC):
                         restitution = force * self.N * other.N
                         self.collide(pos, restitution, velDiff, friction)
                         other.collide(pos, -restitution, -velDiff, friction)
+
+        self.age += dt
 
     @abstractmethod
     def draw(self, camera):
