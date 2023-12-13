@@ -11,13 +11,13 @@ class PaveLink(Link):
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=2, density=1,
                          KP=20000, KD=500, KI=0, friction=2000, brakePoint=3000, indestructible=False, locked=False,
-                         color="#222222", radius=0.2, drawingGroup=5, N=25, mu=2)
+                         color="#222222", radius=0.2, drawingGroup=5, N=25, mu=0.9)
 
 
 class PaveNode(Node):
     def __init__(self, pos, world):
-        super().__init__(pos, world, collisionGroup=2, collideWithGoups=[0, 3], mass=2,
-                         radius=0.2, color="#333333", indestructible=False, locked=False, drawingGroup=9, N=25, mu=1)
+        super().__init__(pos, world, collisionGroup=2, collideWithGroups=[0, 3], mass=2,
+                         radius=0.2, color="#333333", indestructible=False, locked=False, drawingGroup=9, N=25, mu=0.9)
 
     def update(self, dt):
         super().update(dt)

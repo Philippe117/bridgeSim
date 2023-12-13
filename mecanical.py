@@ -10,8 +10,8 @@ class JackLink(Link):
 
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1, node2, world, collisionGroup=1, density=2,
-                         KP=20000, KD=500, KI=0, friction=2000, brakePoint=4000, color="#1144aa", radius=0.15,
-                         indestructible=False, locked=False, drawingGroup=5, N=25, mu=1, startDelay=5)
+                         KP=40000, KD=500, KI=0, friction=2000, brakePoint=8000, color="#1144aa", radius=0.15,
+                         indestructible=False, locked=False, drawingGroup=5, N=25, mu=0.6, startDelay=5)
         self.finalLength = self.length*extention
         self.bodyLength = min(self.length, self.length*extention)
 
@@ -50,9 +50,9 @@ class JackLink(Link):
 
 class JackNode(Node):
     def __init__(self, pos, world):
-        super().__init__(pos, world, collisionGroup=1, collideWithGoups=[], mass=4,
+        super().__init__(pos, world, collisionGroup=1, collideWithGroups=[], mass=4,
                          radius=0.2, color="#888888", indestructible=False, locked=False, drawingGroup=9, N=25,
-                         mu=1)
+                         mu=0.6)
 
 
 class PullerLink(JackLink):
