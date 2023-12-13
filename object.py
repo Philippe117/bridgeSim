@@ -72,9 +72,9 @@ class Object(ABC):
 
     def delete(self):
         self.deleteFlag = True
-        if self.collisionGroup:
+        if self in self.collisionGroup:
             self.collisionGroup.remove(self)
-        if self.drawingGroup:
+        if self in self.drawingGroup:
             self.drawingGroup.remove(self)
-        if self.updateGroup:
+        if self in self.updateGroup:
             self.updateGroup.remove(self)

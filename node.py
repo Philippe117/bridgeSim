@@ -9,12 +9,15 @@ from math import cos, sin
 
 class Node(Object):
 
-    def __init__(self, pos, world, collisionGroup, collideWithGoups, mass=2,
-                 radius=0.12, locked=False, indestructible=True, color="#ffffff", drawingGroup=1, N=10, mu=10, startDelay=5):
+    def __init__(self, pos, world, collisionGroup, collideWithGroups, mass=2,
+                 radius=0.12, locked=False, indestructible=True, color="#ffffff", drawingGroup=1, N=10, mu=10,
+                 startDelay=5):
         # pos: pygame.Vector2
         # links: Link[]
 
-        super().__init__(pos, world, collisionGroup, collideWithGoups, drawingGroup, 1, radius, locked, indestructible, N, mu, mass, startDelay)
+        super().__init__(pos=pos, world=world, collisionGroup=collisionGroup, collideWithGroups=collideWithGroups,
+                         drawingGroup=drawingGroup, updateGroup=1, radius=radius, locked=locked, N=N, mu=mu, mass=mass,
+                         startDelay=startDelay, indestructible=indestructible)
         self.links = []
         self.vel = pygame.Vector2(0, 0)  # m/s
         self.acc = pygame.Vector2(0, 0)  # m/s^2
@@ -24,9 +27,9 @@ class Node(Object):
         self.oldVel = copy(self.vel)
         self.oldPos = copy(self.pos)
         self.color = color
-        self.spin = 0   # rad/s
+        self.spin = 0  # rad/s
         self.torque = 0  # Nm
-        self.momentInertia = (3.14159*self.radius**4)/4
+        self.momentInertia = (3.14159 * self.radius ** 4) / 4
         self.angle = 0
         self.N = N
         self.mu = mu
@@ -45,7 +48,7 @@ class Node(Object):
             self.pos += self.vel * dt
             self.oldPos += (self.pos - self.oldPos) * 1
             self.spin += self.torque / self.momentInertia * dt
-            self.angle += self.spin*dt
+            self.angle += self.spin * dt
 
         self.force = pygame.Vector2(0, 0)
         self.torque = 0
@@ -54,19 +57,18 @@ class Node(Object):
         pos = camera.posToScreen(self.oldPos, self.world.screen)
 
         # Dessine le node
-        pygame.draw.circle(self.world.screen, self.color, pos, self.radius * camera.zoom*1.1)
-        pygame.draw.circle(self.world.screen, "#000000", pos, self.radius * camera.zoom*1.1, 2)
-        X1 = pygame.Vector2(self.radius*cos(self.angle), self.radius*sin(self.angle)) * camera.zoom
+        pygame.draw.circle(self.world.screen, self.color, pos, self.radius * camera.zoom * 1.1)
+        pygame.draw.circle(self.world.screen, "#000000", pos, self.radius * camera.zoom * 1.1, 2)
+        X1 = pygame.Vector2(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
         X2 = pygame.Vector2(X1.y, -X1.x)
-        pygame.draw.line(self.world.screen, "#000000", pos-X1, pos+X1)
-        pygame.draw.line(self.world.screen, "#000000", pos-X2, pos+X2)
+        pygame.draw.line(self.world.screen, "#000000", pos - X1, pos + X1)
+        pygame.draw.line(self.world.screen, "#000000", pos - X2, pos + X2)
 
         # Dessine l'age'
         if self.age < 0:
             font = pygame.font.SysFont("silomttf", 24)
-            img = font.render(str(int(-self.age))+"s", True, "#000000")
-            self.world.screen.blit(img, pos+pygame.Vector2(20, -20))
-
+            img = font.render(str(int(-self.age)) + "s", True, "#000000")
+            self.world.screen.blit(img, pos + pygame.Vector2(20, -20))
 
         # # Dessine le id
         # font = pygame.font.SysFont("silomttf", 24)
@@ -79,22 +81,23 @@ class Node(Object):
 
     def delete(self):
         super().delete()
-        self.world.nodes.remove(self)
+        if self in self.world.nodes:
+            self.world.nodes.remove(self)
         for link in self.links:
             link.delete()
-
 
     def getContactPos(self, pos, radius):
         contactPos = None
         force = None
         if pos != self.pos:
-            #if abs(self.pos.x - pos.x) < (radius + self.radius)*2 and abs(self.pos.y - pos.y) < (radius + self.radius)*2:
+            # if abs(self.pos.x - pos.x) < (radius + self.radius)*2 and abs(self.pos.y - pos.y) < (radius + self.radius)*2:
             diff = self.pos - pos
-            dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
-            unit = diff / dist
-            if dist < (self.radius + radius):
-                contactPos = pos + unit * self.radius
-                force = unit*(dist - (self.radius+radius)) * self.N
+            if abs(diff.x) < 100000 and abs(diff.y) < 100000:
+                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+                unit = diff / dist
+                if dist < (self.radius + radius):
+                    contactPos = pos + unit * self.radius
+                    force = unit * (dist - (self.radius + radius)) * self.N
         return contactPos, force
 
     def getVelAtPoint(self, pos):
@@ -102,22 +105,25 @@ class Node(Object):
         if pos != self.pos:
             diff = self.pos - pos
             dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
-            unit = diff/dist
+            unit = diff / dist
             tangent = pygame.Vector2(unit.y, -unit.x)
-            return self.vel+self.spin*dist*tangent
+            vel = self.vel + self.spin * dist * tangent
+            return vel
         else:
-            return self.vel
+            return -self.vel
 
     def collide(self, pos, force, vel, friction):
         self.force += force
         if pos != self.pos:
             diff = self.pos - pos
-            dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
-            unit = diff / dist
-            norm = pygame.Vector2(unit.y, -unit.x)
+            if abs(diff.x) < 100000 and abs(diff.y) < 100000:
+                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+                unit = diff / dist
+                norm = pygame.Vector2(unit.y, -unit.x)
 
-            # mu
-            #self.force += -norm*(vel)*norm*friction
-            self.force += -vel*friction*10
-            spin = -(norm*vel)/self.radius
-            self.torque += spin*friction*0.1
+                # mu
+                self.force -= unit*vel*unit*100
+
+                self.force += -norm*(vel)*norm*friction*self.mass*4
+                spin = -(norm * vel) * self.radius
+                self.torque += spin*friction

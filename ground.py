@@ -14,5 +14,5 @@ class GroundLink(Link):
 
 class GroundNode(Node):
     def __init__(self, pos, world):
-        super().__init__(pos, world, collisionGroup=0, collideWithGoups=[], mass=1,
-                         radius=0.2, color="#004411", indestructible=True, locked=True, drawingGroup=9, N=30, mu=4, startDelay=0)
+        super().__init__(pos, world, collisionGroup=0, collideWithGroups=[2, 3], mass=1,
+                         radius=0.2, color="#004411", indestructible=True, locked=True, drawingGroup=9, N=30, mu=1, startDelay=0)

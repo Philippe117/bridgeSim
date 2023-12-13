@@ -7,12 +7,12 @@ from mecanical import *
 
 def connexionCheck(me, node):
     for link in node.links:
-        if link.node1 == me or link.node1 == me:
-            return True
+        if link.node1 == me or link.node2 == me:
+            return link
     for link in me.links:
-        if link.node1 == node or link.node1 == node:
-            return True
-    return False
+        if link.node1 == node or link.node2 == node:
+            return link
+    return None
 
 
 class Interface:
@@ -79,10 +79,17 @@ class Interface:
         elif self.state == "linking":
             diff = self.selected.pos - mousePos
             dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
-            if self.hovered and self.hovered != self.selected and not connexionCheck(self.selected,
-                                                                                     self.hovered) and dist < self.linkType.maxLength:
-                # Ajoute un lien
-                self.linkType(self.hovered, self.selected, world)
+
+
+            if self.hovered and self.hovered != self.selected and dist < self.linkType.maxLength:
+                link = connexionCheck(self.selected, self.hovered)
+                if link:
+                    if not link.indestructible:
+                        link.delete()
+                        self.linkType(self.hovered, self.selected, world)
+                else:
+                    self.linkType(self.hovered, self.selected, world)
+
             else:
                 # Ajoute un node avec un lien
                 node = self.nodeType(self.ghostNodePos, world)
@@ -198,20 +205,20 @@ class Interface:
                 self.linkType = PaveLink
                 self.nodeType = PaveNode
             elif keys[pygame.K_3]:
-                self.linkType = CarLink
-                self.nodeType = CarNode
-            elif keys[pygame.K_4]:
-                self.linkType = CarLink
-                self.nodeType = TireNode
-            elif keys[pygame.K_5]:
                 self.linkType = SteelLink
                 self.nodeType = SteelNode
-            elif keys[pygame.K_6]:
+            elif keys[pygame.K_4]:
                 self.linkType = JackLink
                 self.nodeType = JackNode
-            elif keys[pygame.K_7]:
+            elif keys[pygame.K_5]:
                 self.linkType = PullerLink
                 self.nodeType = JackNode
+            elif keys[pygame.K_8]:
+                self.linkType = CarLink
+                self.nodeType = CarNode
+            elif keys[pygame.K_9]:
+                self.linkType = CarLink
+                self.nodeType = TireNode
             elif keys[pygame.K_0] and not self.onsCar:
                 pos = pygame.Vector2(-18, -0.7)
                 size = pygame.Vector2(3, 1)
@@ -246,8 +253,14 @@ class Interface:
 
         elif self.state == "deleting":
             # Supprime les nodes
-            if self.hovered and not self.hovered.indestructible:
-                self.hovered.delete()
+            # if self.hovered and not self.hovered.indestructible:
+            #     self.hovered.delete()
+            for collideWithGroup in world.collisionGroups:
+                for other in collideWithGroup:
+                    if not other.indestructible:
+                        pos, force = other.getContactPos(mousePos, 0.01)
+                        if pos:
+                            other.delete()
 
         return running
 

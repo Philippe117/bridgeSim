@@ -18,9 +18,11 @@ class Link(Object):
         diff = node1.pos - node2.pos
         self.density = density
         self.length = (diff.x ** 2 + diff.y ** 2) ** 0.5
-        self.mass = self.length * self.density
-        super().__init__(pos, world, collisionGroup, [], drawingGroup, 0, radius, locked, indestructible, N, mu,
-                         self.mass, startDelay)
+        mass = self.length * self.density
+        super().__init__(pos=pos, world=world, collisionGroup=collisionGroup, collideWithGroups=[],
+                         drawingGroup=drawingGroup, updateGroup=0, radius=radius, locked=locked,
+                         indestructible=indestructible, N=N, mu=mu,
+                         mass=mass, startDelay=startDelay)
 
         self.connectNode1(node1)
         self.connectNode2(node2)
@@ -47,57 +49,61 @@ class Link(Object):
     def draw(self, camera):
 
         diff = self.node2.oldPos - self.node1.oldPos
-        norm = pygame.Vector2(diff.y, -diff.x)
-        norm /= (norm.x ** 2 + norm.y ** 2) ** 0.5
+        if abs(diff.x) < 100000 and abs(diff.y) < 100000:
+            norm = pygame.Vector2(diff.y, -diff.x)
+            norm /= (norm.x ** 2 + norm.y ** 2) ** 0.5
 
-        pct = min(abs(self.load) / self.brakePoint, 1)
-        #        color = pygame.Color(int(pct * 255), int((1 - pct) * 255), 0)  # GN to RD
-        color = pygame.Color(int(pct * 255), 0, 0)  # BK to RD
+            pct = min(abs(self.load) / self.brakePoint, 1)
+            #        color = pygame.Color(int(pct * 255), int((1 - pct) * 255), 0)  # GN to RD
+            color = pygame.Color(int(pct * 255), 0, 0)  # BK to RD
 
-        pos1 = camera.posToScreen(self.node1.oldPos + norm * self.radius, self.world.screen)
-        pos2 = camera.posToScreen(self.node2.oldPos + norm * self.radius, self.world.screen)
-        pos3 = camera.posToScreen(self.node2.oldPos - norm * self.radius, self.world.screen)
-        pos4 = camera.posToScreen(self.node1.oldPos - norm * self.radius, self.world.screen)
+            pos1 = camera.posToScreen(self.node1.oldPos + norm * self.radius, self.world.screen)
+            pos2 = camera.posToScreen(self.node2.oldPos + norm * self.radius, self.world.screen)
+            pos3 = camera.posToScreen(self.node2.oldPos - norm * self.radius, self.world.screen)
+            pos4 = camera.posToScreen(self.node1.oldPos - norm * self.radius, self.world.screen)
 
-        pygame.draw.polygon(self.world.screen, self.color, [pos1, pos2, pos3, pos4])
-        pygame.draw.polygon(self.world.screen, color, [pos1, pos2, pos3, pos4], 2)
+            pygame.draw.polygon(self.world.screen, self.color, [pos1, pos2, pos3, pos4])
+            pygame.draw.polygon(self.world.screen, color, [pos1, pos2, pos3, pos4], 2)
 
     def update(self, dt):
         super().update(dt)
         diff = self.node1.pos - self.node2.pos
-        length = (diff.x ** 2 + diff.y ** 2) ** 0.5
-        unit = diff / length
-        err = length - self.length
+        if abs(diff.x) < 100000 and abs(diff.y) < 100000:
+            length = (diff.x ** 2 + diff.y ** 2) ** 0.5
+            unit = diff / length
+            err = length - self.length
 
-        delta = abs(err) * (err - self.oldErr) / dt
-        self.oldErr = err
-        self.i += err * dt
+            delta = abs(err) * (err - self.oldErr) / dt
+            self.oldErr = err
+            self.i += err * dt
 
-        self.load = err * self.KP + delta * self.KD + self.i * self.KI
+            self.load = err * self.KP + delta * self.KD + self.i * self.KI
 
-        if not self.indestructible and abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
-            load = self.load
-            brakePoint = self.brakePoint
-            self.delete()
-        else:
-            self.node1.force -= unit * self.load
-            self.node2.force += unit * self.load
+            if not self.indestructible and abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
+                load = self.load
+                brakePoint = self.brakePoint
+                self.delete()
+            else:
+                self.node1.force -= unit * self.load
+                self.node2.force += unit * self.load
 
-        self.node1.force += (self.node2.vel - self.node1.vel) * self.friction / length * dt
-        self.node2.force += (self.node1.vel - self.node2.vel) * self.friction / length * dt
+            self.node1.force += (self.node2.vel - self.node1.vel) * self.friction * dt
+            self.node2.force += (self.node1.vel - self.node2.vel) * self.friction * dt
 
     def delete(self):
         super().delete()
         if not self.node1.deleteFlag:
-            self.node1.mass -= self.mass / 2
-            self.node1.links.remove(self)
+            if self in self.node1.links:
+                self.node1.mass -= self.mass / 2
+                self.node1.links.remove(self)
         if not self.node2.deleteFlag:
-            self.node2.mass -= self.mass / 2
-            self.node2.links.remove(self)
+            if self in self.node2.links:
+                self.node2.mass -= self.mass / 2
+                self.node2.links.remove(self)
 
     def getContactPos(self, pos, radius):
 
-        colisionPos = None
+        contactPos = None
         force = None
         if pos != self.node1.pos and pos != self.node1.pos:
 
@@ -125,11 +131,11 @@ class Link(Object):
                     dist1 = abs(diff1 * unit)
                     dist2 = abs(diff2 * unit)
                     if dist1 < length and dist2 < length:
-                        colisionPos = pos + norm * radius * sign(diff1 * norm)
+                        contactPos = pos + norm * radius * sign(diff1 * norm)
                         force = norm * (dist - (self.radius + radius)) * sign(diff1 * norm) * self.N
                         ok = 0
 
-        return colisionPos, force
+        return contactPos, force
 
     def getVelAtPoint(self, pos):
         # Pourrait être mieu fait. Tenir compte du rayon
@@ -151,6 +157,7 @@ class Link(Object):
         diff21 = self.node2.pos - self.node1.pos
         length = (diff21.x ** 2 + diff21.y ** 2) ** 0.5
         unit = diff21 / length
+        norm = pygame.Vector2(unit.y, -unit.x)
 
         dist1 = abs(diff1 * unit)
         dist2 = abs(diff2 * unit)
@@ -158,12 +165,12 @@ class Link(Object):
         # N
         self.node1.force += force * (dist2 / length)
         self.node2.force += force * (dist1 / length)
+        self.node1.force -= norm * vel * norm * 100 * (dist2 / length)
+        self.node2.force -= norm * vel * norm * 100 * (dist2 / length)
 
         # mu
-        # self.node1.force += unit*vel*unit*friction
-        # self.node2.force += unit*vel*unit*friction
-        self.node1.force += vel * friction
-        self.node2.force += vel * friction
+        self.node1.force += unit * vel * unit * friction
+        self.node2.force += unit * vel * unit * friction
 
 
 def sign(num):

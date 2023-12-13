@@ -16,12 +16,15 @@ running = True
 def config(self, nb=5, h=WoodLink.maxLength):
     node1 = GroundNode(pygame.Vector2(-20, 0), self)
     node2 = GroundNode(pygame.Vector2(-10, 0), self)
+    GroundNode(pygame.Vector2(-12, 0), self)
+    # GroundNode(pygame.Vector2(-12, -1), self)
     GroundLink(node1, node2, self)
     node3 = GroundNode(pygame.Vector2(-10, 2), self)
     GroundLink(node2, node3, self)
 
     node4 = GroundNode(pygame.Vector2(20, 0), self)
     node5 = GroundNode(pygame.Vector2(10, 0), self)
+    GroundNode(pygame.Vector2(12, 0), self)
     GroundLink(node4, node5, self)
     node6 = GroundNode(pygame.Vector2(10, 2), self)
     GroundLink(node5, node6, self)
