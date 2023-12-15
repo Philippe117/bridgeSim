@@ -8,7 +8,7 @@ class SteelLink(Link):
 
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=1, density=2,
-                         KP=50000, KD=500, KI=0, friction=2000, brakePoint=8000, color="#883333", radius=0.2,
+                         KP=50000, KD=150, KI=0, friction=2, brakePoint=8000, color="#883333", radius=0.2,
                          indestructible=False, locked=False, drawingGroup=7, N=25, mu=0.6)
 
 

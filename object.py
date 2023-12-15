@@ -38,6 +38,11 @@ class Object(ABC):
         self.mu = mu
 
     @abstractmethod
+    def getDistance(self, pos, maxDist=10):
+        # Retourne la position et la velocité du point de contact
+        raise NotImplementedError("Must override collideCheck")
+
+    @abstractmethod
     def getContactPos(self, pos, radius):
         # Retourne la position et la velocité du point de contact
         raise NotImplementedError("Must override collideCheck")
@@ -45,6 +50,10 @@ class Object(ABC):
     @abstractmethod
     def collide(self, pos, force, vel, friction):
         raise NotImplementedError("Must override collide")
+
+    # Routine qui permet de faire des actions si requis
+    def sclollAction(self, direction):
+        return None
 
     def update(self, dt):
         if not self.deleteFlag:

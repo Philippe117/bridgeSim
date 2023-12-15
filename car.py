@@ -30,7 +30,7 @@ class CarLink(Link):
 
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=3, density=1,
-                         KP=20000, KD=500, KI=0, friction=1000, brakePoint=17500, color="#aa0000", radius=0.2,
+                         KP=20000, KD=150, KI=0, friction=1, brakePoint=17500, color="#aa0000", radius=0.2,
                          indestructible=True, locked=False, N=25, mu=0.8, drawingGroup=2)
         self.Speed = 1
 0
@@ -53,7 +53,7 @@ class TireNode(Node):
     def draw(self, camera):
         super().draw(camera)
 
-        pos = camera.posToScreen(self.oldPos, self.world.screen)
+        pos = camera.posToScreen(self.pos, self.world.screen)
 
         # Dessine le node
         pygame.draw.circle(self.world.screen, "#444444", pos, self.radius * camera.zoom*0.7)

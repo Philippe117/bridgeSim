@@ -156,9 +156,23 @@ class Interface:
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEWHEEL:
-                # Zoom
-                world.camera.zoom *= 1 + event.y * 0.1
-                world.camera.pos += (mousePos - world.camera.pos) * (event.y * 0.1)
+
+                minDist = 0.5
+                toInteract = None
+                for collideWithGroup in world.collisionGroups:
+                    for other in collideWithGroup:
+                        if not other.indestructible:
+                            dist = other.getDistance(mousePos, minDist)
+                            if dist and dist < minDist:
+                                minDist = dist
+                                toInteract = other
+                if toInteract and minDist < toInteract.radius:
+                    toInteract.sclollAction(event.y)
+                else:
+
+                    # Zoom
+                    world.camera.zoom *= 1 + event.y * 0.1
+                    world.camera.pos += (mousePos - world.camera.pos) * (event.y * 0.1)
 
         # Obtention de l'état de la sourie
         left, middle, right = pygame.mouse.get_pressed()
@@ -255,12 +269,17 @@ class Interface:
             # Supprime les nodes
             # if self.hovered and not self.hovered.indestructible:
             #     self.hovered.delete()
+            minDist = 0.5
+            toDelete = None
             for collideWithGroup in world.collisionGroups:
                 for other in collideWithGroup:
                     if not other.indestructible:
-                        pos, force = other.getContactPos(mousePos, 0.01)
-                        if pos:
-                            other.delete()
+                        dist = other.getDistance(mousePos, minDist)
+                        if dist and dist < minDist:
+                            minDist = dist
+                            toDelete = other
+            if toDelete and minDist < toDelete.radius:
+                toDelete.delete()
 
         return running
 

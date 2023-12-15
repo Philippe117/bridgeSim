@@ -24,8 +24,6 @@ class Node(Object):
         self.force = pygame.Vector2(0, 0)  # N
         self.mass = mass  # Kg
         self.world.nodes.append(self)
-        self.oldVel = copy(self.vel)
-        self.oldPos = copy(self.pos)
         self.color = color
         self.spin = 0  # rad/s
         self.torque = 0  # Nm
@@ -33,6 +31,7 @@ class Node(Object):
         self.angle = 0
         self.N = N
         self.mu = mu
+
 
     def addLink(self, link):
         self.links.append(link)
@@ -46,7 +45,6 @@ class Node(Object):
             self.acc = self.force / self.mass
             self.vel += self.acc * dt
             self.pos += self.vel * dt
-            self.oldPos += (self.pos - self.oldPos) * 1
             self.spin += self.torque / self.momentInertia * dt
             self.angle += self.spin * dt
 
@@ -54,7 +52,7 @@ class Node(Object):
         self.torque = 0
 
     def draw(self, camera):
-        pos = camera.posToScreen(self.oldPos, self.world.screen)
+        pos = camera.posToScreen(self.pos, self.world.screen)
 
         # Dessine le node
         pygame.draw.circle(self.world.screen, self.color, pos, self.radius * camera.zoom * 1.1)
@@ -86,17 +84,25 @@ class Node(Object):
         for link in self.links:
             link.delete()
 
+    def getDistance(self, pos, maxDist=10):
+        dist = None
+        if pos != self.pos:
+            diff = self.pos - pos
+            if abs(diff.x) < (maxDist)*2 and abs(diff.y) < (maxDist)*2:
+                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+        return dist
+
     def getContactPos(self, pos, radius):
         contactPos = None
         force = None
-        if pos != self.pos:
+        maxDist = self.radius + radius
+        dist = self.getDistance(pos, maxDist=maxDist)
+        if dist:
             diff = self.pos - pos
-            if abs(diff.x) < (radius + self.radius)*2 and abs(diff.y) < (radius + self.radius)*2:
-                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
-                unit = diff / dist
-                if dist < (self.radius + radius):
-                    contactPos = pos + unit * self.radius
-                    force = unit * (dist - (self.radius + radius)) * self.N
+            unit = diff / dist
+            if dist < (self.radius + radius):
+                contactPos = pos + unit * self.radius
+                force = unit * (dist - maxDist) * self.N
         return contactPos, force
 
     def getVelAtPoint(self, pos):
