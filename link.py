@@ -42,12 +42,12 @@ class Link(Object):
     def connectNode1(self, node):
         self.node1 = node
         self.node1.addLink(self)
-        #self.node1.mass += self.mass / 2
+        self.node1.mass += self.mass / 2
 
     def connectNode2(self, node):
         self.node2 = node
         self.node2.addLink(self)
-        #self.node1.mass += self.mass / 2
+        self.node2.mass += self.mass / 2
 
     def draw(self, camera):
 
@@ -71,11 +71,12 @@ class Link(Object):
 
         self.updateValues()
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
+            mass = (self.node1.mass + self.node2.mass)*0.2
             err = self.length-self.curLength
             velDiff = self.node2.vel-self.node1.vel
             delta = velDiff*self.unit
             self.i += err * dt
-            self.load = err * self.KP + delta * self.KD + self.i * self.KI
+            self.load = (err * self.KP + delta * self.KD + self.i * self.KI)*mass
 
             if not self.indestructible and abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
                 self.delete()
@@ -92,15 +93,11 @@ class Link(Object):
 
 
     def delete(self):
-        super().delete()
-        if not self.node1.deleteFlag:
+        if super().delete():
             if self in self.node1.links:
-                #self.node1.mass -= self.mass / 2
-                self.node1.links.remove(self)
-        if not self.node2.deleteFlag:
+                self.node1.mass -= self.mass / 2
             if self in self.node2.links:
-                #self.node2.mass -= self.mass / 2
-                self.node2.links.remove(self)
+                self.node2.mass -= self.mass / 2
 
     def getDistance(self, pos, maxDist=10):
         dist = None

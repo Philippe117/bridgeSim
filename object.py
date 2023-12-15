@@ -80,10 +80,13 @@ class Object(ABC):
         raise NotImplementedError("Must override getVelAtPoint")
 
     def delete(self):
-        self.deleteFlag = True
-        if self in self.collisionGroup:
-            self.collisionGroup.remove(self)
-        if self in self.drawingGroup:
-            self.drawingGroup.remove(self)
-        if self in self.updateGroup:
-            self.updateGroup.remove(self)
+        if not self.deleteFlag:
+            self.deleteFlag = True
+            if self in self.collisionGroup:
+                self.collisionGroup.remove(self)
+            if self in self.drawingGroup:
+                self.drawingGroup.remove(self)
+            if self in self.updateGroup:
+                self.updateGroup.remove(self)
+            return True
+        return False

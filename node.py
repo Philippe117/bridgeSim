@@ -67,10 +67,10 @@ class Node(Object):
             font = pygame.font.SysFont("silomttf", 24)
             img = font.render(str(int(-self.age)) + "s", True, "#000000")
             self.world.screen.blit(img, pos + pygame.Vector2(20, -20))
-
-        # # Dessine le id
+        #
+        # # Dessine la masse
         # font = pygame.font.SysFont("silomttf", 24)
-        # img = font.render(str(self.id), True, "#000000")
+        # img = font.render(str(self.mass), True, "#000000")
         # self.world.screen.blit(img, pos)
 
     # def delete(self):
@@ -78,11 +78,12 @@ class Node(Object):
     #         link.delete = True
 
     def delete(self):
-        super().delete()
-        if self in self.world.nodes:
-            self.world.nodes.remove(self)
-        for link in self.links:
-            link.delete()
+        if super().delete():
+            if self in self.world.nodes:
+                self.world.nodes.remove(self)
+            links = copy(self.links)
+            for link in links:
+                link.delete()
 
     def getDistance(self, pos, maxDist=10):
         dist = None
@@ -129,6 +130,6 @@ class Node(Object):
                 # mu
                 self.force -= unit*vel*unit*100
 
-                self.force += -norm*(vel)*norm*friction*self.mass*4
+                self.force += -norm*(vel)*norm*friction*self.mass/self.radius
                 spin = -(norm * vel) * self.radius
                 self.torque += spin*friction
