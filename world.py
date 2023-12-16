@@ -5,6 +5,7 @@ class World:
         self.gravity = gravity
         super().__init__()
         self.nodes = []
+        self.buildings = []
         self.camera = camera
         self.screen = screen
         self.friction = 1000

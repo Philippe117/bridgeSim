@@ -1,10 +1,11 @@
 # Example file showing a basic pygame "game loop"
-
+import pygame
 from world import World
-from wood import *
-from camera import *
+from wood import WoodNode, WoodLink
+from camera import Camera
 from interface import Interface
-from ground import *
+from ground import GroundNode, GroundLink
+from garage import Garage
 
 # pygame setup
 pygame.init()
@@ -29,6 +30,7 @@ def config(self, nb=5, h=WoodLink.maxLength):
     node6 = GroundNode(pygame.Vector2(10, 2), self)
     GroundLink(node5, node6, self)
 
+    Garage(pygame.Vector2(-18, -0.5), self)
 
     # node = PaveNode(pygame.Vector2(-20, 0), self)
     # node.physic = False

@@ -130,6 +130,6 @@ class Node(Object):
                 # mu
                 self.force -= unit*vel*unit*100
 
-                self.force += -norm*(vel)*norm*friction*self.mass/self.radius
-                spin = -(norm * vel) * self.radius
+                self.force += -norm*(vel)*norm*friction*self.mass/self.radius*2
+                spin = -(norm * vel) * self.radius*2
                 self.torque += spin*friction

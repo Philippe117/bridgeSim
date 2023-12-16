@@ -9,10 +9,10 @@ from math import cos, sin
 class Car:
     def __init__(self, pose, size, world):
 
-        self.wheel1 = TireNode(pygame.Vector2(pose.x-size.x/2, pose.y), world)
-        self.wheel2 = TireNode(pygame.Vector2(pose.x+size.x/2, pose.y), world)
-        self.top1 = CarNode(pygame.Vector2(pose.x-size.x/2, pose.y-size.y), world)
-        self.top2 = CarNode(pygame.Vector2(pose.x+size.x/2, pose.y-size.y), world)
+        self.wheel1 = TireNode(pygame.Vector2(pose.x-size.x/2, pose.y-0.5), world)
+        self.wheel2 = TireNode(pygame.Vector2(pose.x+size.x/2, pose.y-0.5), world)
+        self.top1 = CarNode(pygame.Vector2(pose.x-size.x/2, pose.y-size.y-0.5), world)
+        self.top2 = CarNode(pygame.Vector2(pose.x+size.x/2, pose.y-size.y-0.5), world)
         CarLink(self.wheel1, self.wheel2, world)
         CarLink(self.top1, self.top2, world)
         CarLink(self.wheel1, self.top1, world)
