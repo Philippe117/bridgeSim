@@ -11,7 +11,7 @@ from classes.abstract.drawable import Drawable
 class Building(Updatable, Drawable):
 
     def __init__(self, pos, world, drawingGroup, updateGroup):
-        super().__init__(pos=pos, world=world, drawGroup=drawingGroup, updateGroup=updateGroup)
+        super().__init__(world=world, pos=pos, drawGroup=drawingGroup, updateGroup=updateGroup)
 
         # world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith
         self.pos = pos

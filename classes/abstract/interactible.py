@@ -6,15 +6,13 @@ class Interactor(ABC, Base):
     def __init__(self):
         self.interactibles = []
 
-    def interact(self, pos, maxDist=10):
-        minDist = maxDist
-        hovered = None
+    def getInteractibles(self, pos):
+        hovereds = []
         for interactible in self.interactibles:
-            dist = interactible.getDistance(pos, maxDist)
-            if dist < minDist:
-                hovered = interactible
-                minDist = dist
-        return hovered
+            pos2, force = interactible.getContactPos(pos, 0.01)
+            if pos2:
+                hovereds.append(interactible)
+        return hovereds
 
 
 class Interactible(ABC, Base):
@@ -29,7 +27,12 @@ class Interactible(ABC, Base):
     def getContactPos(self, pos, radius):
         raise NotImplementedError("Must override getContactPos")
 
+    @abstractmethod
+    def sclollAction(self, scroll):
+        raise NotImplementedError("Must override scrollWheel")
+
     def delete(self):
-        super().delete()
-        if self in self.interactibles:
-            self.interactibles.remove(self)
+        if not self.deleteFlag:
+            super().delete()
+            if self in self.interactibles:
+                self.interactibles.remove(self)

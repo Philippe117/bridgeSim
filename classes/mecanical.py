@@ -2,16 +2,17 @@ from classes.abstract.link import Link
 from classes.abstract.node import Node
 import pygame
 from classes.abstract.destructible import Destructible
+from classes.abstract.interactible import Interactible
 
 
-class JackLink(Link, Destructible):
+class JackLink(Link, Destructible, Interactible):
     maxLength = 3
     minLength = 0.5
     extentionSpeed = 1
 
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=2,
-                         KP=40000, KD=150, KI=0, friction=2, brakePoint=8000, color="#1144aa", radius=0.15,
+                         KP=30000, KD=100, KI=0, friction=2, brakePoint=8000, color="#1144aa", radius=0.15,
                          drawGroup=5, N=30, mu=0.6)
 
         self.maxLength = max(self.length, self.length * extention)
@@ -48,9 +49,9 @@ class JackLink(Link, Destructible):
         pygame.draw.polygon(camera.screen, self.color, [pos1, pos2, pos3, pos4])
         pygame.draw.polygon(camera.screen, color, [pos1, pos2, pos3, pos4], 2)
 
-    def sclollAction(self, direction):
+    def sclollAction(self, scroll):
         self.cmdLength = max(self.minLength,
-                             min(self.maxLength, self.curLength + direction * JackLink.extentionSpeed / 4))
+                             min(self.maxLength, self.curLength + scroll * JackLink.extentionSpeed / 4))
         return True
 
 

@@ -60,7 +60,7 @@ class Interface:
                     # Ajoute un node avec les liens
                     node = self.nodeType(mousePos, world)
                     for linkable in self.linkables:
-                        self.linkType(node, linkable, world, )
+                        self.linkType(node1=node, node2=linkable, world=world )
                 else:
                     self.nodeType(mousePos, world)
 
@@ -86,14 +86,14 @@ class Interface:
                 link = connexionCheck(self.selected, self.hovered)
                 if link:
                     link.delete()
-                    self.linkType(self.hovered, self.selected, world)
+                    self.linkType(node1=self.hovered, node2=self.selected, world=world)
                 else:
-                    self.linkType(self.hovered, self.selected, world)
+                    self.linkType(node1=self.hovered, node2=self.selected, world=world)
 
             else:
                 # Ajoute un node avec un lien
                 node = self.nodeType(self.ghostNodePos, world)
-                self.linkType(node, self.selected, world)
+                self.linkType(node1=node, node2=self.selected, world=world)
 
             self.selected = None
             self.state = "idle"
@@ -190,24 +190,15 @@ class Interface:
                 running = False
             elif event.type == pygame.MOUSEWHEEL:
 
+                toInteract = world.getInteractibles(mousePos)
+                if toInteract and len(toInteract) > 0:
+                    for interactible in toInteract:
+                        interactible.sclollAction(event.y)
+                else:
 
-                #
-                # minDist = 0.5
-                # toInteract = None
-                # for collideWithGroup in world.collisionGroups:
-                #     for other in collideWithGroup:
-                #         if not other.indestructible:
-                #             dist = other.getDistance(mousePos, minDist)
-                #             if dist and dist < minDist:
-                #                 minDist = dist
-                #                 toInteract = other
-                # if toInteract and minDist < toInteract.radius:
-                #     toInteract.sclollAction(event.y)
-                # else:
-
-                # Zoom
-                camera.zoom *= 1 + event.y * 0.1
-                camera.pos += (mousePos - camera.pos) * (event.y * 0.1)
+                    # Zoom
+                    camera.zoom *= 1 + event.y * 0.1
+                    camera.pos += (mousePos - camera.pos) * (event.y * 0.1)
 
         # Obtention de l'état de la sourie
         left, middle, right = pygame.mouse.get_pressed()
