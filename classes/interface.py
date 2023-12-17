@@ -48,8 +48,7 @@ class Interface:
 
         self.linkables = []
 
-    def pressLeft(self, world):
-        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+    def pressLeft(self, world, mousePos):
         if self.state == "idle":
             if self.hovered:
                 self.selected = self.hovered
@@ -71,8 +70,7 @@ class Interface:
         elif self.state == "deleting":
             pass
 
-    def releaseLeft(self, world):
-        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+    def releaseLeft(self, world, mousePos):
         if self.state == "idle":
             pass
         elif self.state == "dragging":
@@ -100,8 +98,7 @@ class Interface:
         elif self.state == "deleting":
             pass
 
-    def pressRight(self, world):
-        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+    def pressRight(self, world, mousePos):
         if self.state == "idle":
             self.state = "deleting"
         elif self.state == "dragging":
@@ -111,8 +108,7 @@ class Interface:
         elif self.state == "deleting":
             pass
 
-    def releaseRight(self, world):
-        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+    def releaseRight(self, world, mousePos):
         if self.state == "idle":
             pass
         elif self.state == "dragging":
@@ -122,8 +118,7 @@ class Interface:
         elif self.state == "deleting":
             self.state = "idle"
 
-    def pressMiddle(self, world):
-        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+    def pressMiddle(self, world, mousePos):
         if self.state == "idle":
             if self.hovered:
                 self.selected = self.hovered
@@ -136,8 +131,7 @@ class Interface:
         elif self.state == "deleting":
             pass
 
-    def releaseMiddle(self, world):
-        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+    def releaseMiddle(self, world, mousePos):
         if self.state == "idle":
             pass
         elif self.state == "dragging":
@@ -204,19 +198,19 @@ class Interface:
         left, middle, right = pygame.mouse.get_pressed()
 
         if left and not self.oldLeft:
-            self.pressLeft(world)
+            self.pressLeft(world, mousePos)
         elif not left and self.oldLeft:
-            self.releaseLeft(world)
+            self.releaseLeft(world, mousePos)
 
         if right and not self.oldRight:
-            self.pressRight(world)
+            self.pressRight(world, mousePos)
         elif not right and self.oldRight:
-            self.releaseRight(world)
+            self.releaseRight(world, mousePos)
 
         if middle and not self.oldMiddle:
-            self.pressMiddle(world)
+            self.pressMiddle(world, mousePos)
         elif not middle and self.oldMiddle:
-            self.releaseMiddle(world)
+            self.releaseMiddle(world, mousePos)
 
         self.oldLeft = left
         self.oldRight = right
