@@ -1,10 +1,7 @@
-from building import Building
+from classes.abstract.building import Building
 from time import time
-from car import Car
+from classes.car import Car
 import pygame
-from copy import copy
-from math import cos, sin
-from abc import ABC, abstractmethod
 
 
 # font = pygame.font.SysFont("silomttf", 48)

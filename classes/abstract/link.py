@@ -1,31 +1,31 @@
 # Example file showing a basic pygame "game loop"
 import pygame
-from object import Object
+from classes.abstract.object import Object
 from mymath import getDiffLengthUnitNorm
+from classes.abstract.collidable import Collidable
+from classes.abstract.updatable import Updatable
+from classes.abstract.drawable import Drawable
+from classes.abstract.node import Node
 
 
-class Link(Object):
+class Link(Collidable, Updatable, Drawable):
     maxLength = 2
     minLength = 0.5
 
-    def __init__(self, node1, node2, world, collisionGroup=0, density=1,
+    def __init__(self, node1: Node, node2: Node, world: object, collisionGroup=0, density=1,
                  KP=100000, KD=10000, KI=4000, friction=2000, brakePoint=15000, color="#888888", radius=0.1,
-                 locked=False, indestructible=True,
-                 drawingGroup=0, N=50, mu=10, startDelay=0):
-        # node1: Node
-        # node2: Node
+                 drawGroup=0, N=50, mu=10, updateGroup=0):
+        pos = (node1.pos + node2.pos) / 2
+        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, [])
 
-
+        self.radius = radius
         self.node1 = node1
         self.node2 = node2
         self.updateValues()
         self.curLength = self.length
         self.density = density
-        mass = self.length * self.density
-        super().__init__(pos=self.middle, world=world, collisionGroup=collisionGroup, collideWithGroups=[],
-                         drawingGroup=drawingGroup, updateGroup=0, radius=radius, locked=locked,
-                         indestructible=indestructible, N=N, mu=mu,
-                         mass=mass, startDelay=startDelay)
+        self.mass = self.length * self.density
+        self.pos = pos
 
         self.connectNode1(node1)
         self.connectNode2(node2)
@@ -38,7 +38,6 @@ class Link(Object):
         self.load = 0
         self.color = color
 
-
     def connectNode1(self, node):
         self.node1 = node
         self.node1.addLink(self)
@@ -50,35 +49,30 @@ class Link(Object):
         self.node2.mass += self.mass / 2
 
     def draw(self, camera):
-
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
-
             pct = min(abs(self.load) / self.brakePoint, 1)
             #        color = pygame.Color(int(pct * 255), int((1 - pct) * 255), 0)  # GN to RD
             color = pygame.Color(int(pct * 255), 0, 0)  # BK to RD
 
-            pos1 = camera.posToScreen(self.node1.pos + self.norm * self.radius, self.world.screen)
-            pos2 = camera.posToScreen(self.node2.pos + self.norm * self.radius, self.world.screen)
-            pos3 = camera.posToScreen(self.node2.pos - self.norm * self.radius, self.world.screen)
-            pos4 = camera.posToScreen(self.node1.pos - self.norm * self.radius, self.world.screen)
+            pos1 = camera.posToScreen(self.node1.pos + self.norm * self.radius)
+            pos2 = camera.posToScreen(self.node2.pos + self.norm * self.radius)
+            pos3 = camera.posToScreen(self.node2.pos - self.norm * self.radius)
+            pos4 = camera.posToScreen(self.node1.pos - self.norm * self.radius)
 
-            pygame.draw.polygon(self.world.screen, self.color, [pos1, pos2, pos3, pos4])
-            pygame.draw.polygon(self.world.screen, color, [pos1, pos2, pos3, pos4], 2)
-
+            pygame.draw.polygon(camera.screen, self.color, [pos1, pos2, pos3, pos4])
+            pygame.draw.polygon(camera.screen, color, [pos1, pos2, pos3, pos4], 2)
 
     def update(self, dt):
-        super().update(dt)
-
         self.updateValues()
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
-            mass = (self.node1.mass + self.node2.mass)*0.2
-            err = self.length-self.curLength
-            velDiff = self.node2.vel-self.node1.vel
-            delta = velDiff*self.unit
+            mass = (self.node1.mass + self.node2.mass) * 0.2
+            err = self.length - self.curLength
+            velDiff = self.node2.vel - self.node1.vel
+            delta = velDiff * self.unit
             self.i += err * dt
-            self.load = (err * self.KP + delta * self.KD + self.i * self.KI)*mass
+            self.load = (err * self.KP + delta * self.KD + self.i * self.KI) * mass
 
-            if not self.indestructible and abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
+            if abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
                 self.delete()
             else:
                 self.node1.force += self.unit * self.load
@@ -89,25 +83,25 @@ class Link(Object):
 
     def updateValues(self):
         self.diff, self.length, self.unit, self.norm = getDiffLengthUnitNorm(self.node1.pos, self.node2.pos)
-        self.middle = (self.node1.pos + self.node2.pos) /2
-
+        self.pos = (self.node1.pos + self.node2.pos) / 2
 
     def delete(self):
-        if super().delete():
-            if self in self.node1.links:
-                self.node1.mass -= self.mass / 2
-            if self in self.node2.links:
-                self.node2.mass -= self.mass / 2
+        if self in self.node1.links:
+            self.node1.mass -= self.mass / 2
+        if self in self.node2.links:
+            self.node2.mass -= self.mass / 2
+        Collidable.delete(self)
+        Updatable.delete(self)
+        Drawable.delete(self)
 
     def getDistance(self, pos, maxDist=10):
         dist = None
         if pos != self.node1.pos and pos != self.node1.pos:
 
             if (max(self.node1.pos.x, self.node2.pos.x) + maxDist) > pos.x > (
-                    min(self.node1.pos.x, self.node2.pos.x) - maxDist) \
-                    and (max(self.node1.pos.y, self.node2.pos.y) + maxDist) > pos.y > (
-                    min(self.node1.pos.y, self.node2.pos.y) - maxDist):
-
+                min(self.node1.pos.x, self.node2.pos.x) - maxDist) \
+                and (max(self.node1.pos.y, self.node2.pos.y) + maxDist) > pos.y > (
+                min(self.node1.pos.y, self.node2.pos.y) - maxDist):
 
                 # Calcul de la distance
                 diff1 = self.node1.pos - pos
@@ -115,17 +109,15 @@ class Link(Object):
                 dist1 = abs(diff1 * self.unit)
                 dist2 = abs(diff2 * self.unit)
                 if dist1 < self.length and dist2 < self.length:
-
                     c = -(self.norm.x * self.node1.pos.x + self.norm.y * self.node1.pos.y)
 
                     # Calcul de la distance entre le point et la droite
-                    dist = abs(self.norm.x * pos.x + self.norm.y * pos.y + c) / (self.norm.x ** 2 + self.norm.y ** 2) ** 0.5
-
+                    dist = abs(self.norm.x * pos.x + self.norm.y * pos.y + c) / (
+                            self.norm.x ** 2 + self.norm.y ** 2) ** 0.5
 
         return dist
 
     def getContactPos(self, pos, radius):
-
         contactPos = None
         force = None
         if pos != self.node1.pos and pos != self.node1.pos:
@@ -133,9 +125,9 @@ class Link(Object):
             maxDist = radius + self.radius
 
             if (max(self.node1.pos.x, self.node2.pos.x) + radius + self.radius) > pos.x > (
-                    min(self.node1.pos.x, self.node2.pos.x) - radius - self.radius) \
-                    and (max(self.node1.pos.y, self.node2.pos.y) + radius + self.radius) > pos.y > (
-                    min(self.node1.pos.y, self.node2.pos.y) - radius - self.radius):
+                min(self.node1.pos.x, self.node2.pos.x) - radius - self.radius) \
+                and (max(self.node1.pos.y, self.node2.pos.y) + radius + self.radius) > pos.y > (
+                min(self.node1.pos.y, self.node2.pos.y) - radius - self.radius):
 
                 # Calcul de la distance entre le point et la droite
                 dist = self.getDistance(pos, maxDist=maxDist)

@@ -11,17 +11,6 @@ class Building():
     def __init__(self, pos, world, drawingGroup, updateGroup):
         self.pos = pos
         self.world = world
-        self.world.buildings.append(self)
-        if drawingGroup >= 0:
-            self.drawingGroup = self.world.drawingGroups[drawingGroup]
-            self.drawingGroup.append(self)
-        else:
-            self.drawingGroup = None
-        if updateGroup >= 0:
-            self.updateGroup = self.world.updateGroups[updateGroup]
-            self.updateGroup.append(self)
-        else:
-            self.updateGroup = None
 
     @abstractmethod
     def update(self, dt):

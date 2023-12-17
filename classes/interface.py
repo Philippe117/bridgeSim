@@ -1,8 +1,8 @@
-from wood import *
-from pave import *
-from steel import *
-from car import *
-from mecanical import *
+from classes.wood import *
+from classes.pave import *
+from classes.steel import *
+from classes.car import *
+from classes.mecanical import *
 
 
 def connexionCheck(me, node):
@@ -17,7 +17,7 @@ def connexionCheck(me, node):
 
 class Interface:
 
-    def __init__(self):
+    def __init__(self, camera):
 
         self.allowZoom = True
         self.allowPan = True
@@ -36,6 +36,7 @@ class Interface:
         self.oldLeft = False
         self.oldRight = False
         self.oldMiddle = False
+        self.camera = camera
 
         self.linkType = WoodLink
         self.nodeType = WoodNode
@@ -48,7 +49,7 @@ class Interface:
         self.linkables = []
 
     def pressLeft(self, world):
-        mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), world.screen)
+        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
         if self.state == "idle":
             if self.hovered:
                 self.selected = self.hovered
@@ -71,7 +72,7 @@ class Interface:
             pass
 
     def releaseLeft(self, world):
-        mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), world.screen)
+        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
         if self.state == "idle":
             pass
         elif self.state == "dragging":
@@ -101,7 +102,7 @@ class Interface:
             pass
 
     def pressRight(self, world):
-        mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), world.screen)
+        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
         if self.state == "idle":
             self.state = "deleting"
         elif self.state == "dragging":
@@ -112,7 +113,7 @@ class Interface:
             pass
 
     def releaseRight(self, world):
-        mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), world.screen)
+        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
         if self.state == "idle":
             pass
         elif self.state == "dragging":
@@ -123,7 +124,7 @@ class Interface:
             self.state = "idle"
 
     def pressMiddle(self, world):
-        mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), world.screen)
+        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
         if self.state == "idle":
             if self.hovered:
                 self.selected = self.hovered
@@ -137,7 +138,7 @@ class Interface:
             pass
 
     def releaseMiddle(self, world):
-        mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), world.screen)
+        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
         if self.state == "idle":
             pass
         elif self.state == "dragging":
@@ -147,32 +148,31 @@ class Interface:
         elif self.state == "deleting":
             pass
 
-    def update(self, world, screen, running):
-
-        mousePos = world.camera.screenToPos(pygame.mouse.get_pos(), screen)
+    def update(self, world, camera, running):
+        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEWHEEL:
+                #
+                # minDist = 0.5
+                # toInteract = None
+                # for collideWithGroup in world.collisionGroups:
+                #     for other in collideWithGroup:
+                #         if not other.indestructible:
+                #             dist = other.getDistance(mousePos, minDist)
+                #             if dist and dist < minDist:
+                #                 minDist = dist
+                #                 toInteract = other
+                # if toInteract and minDist < toInteract.radius:
+                #     toInteract.sclollAction(event.y)
+                # else:
 
-                minDist = 0.5
-                toInteract = None
-                for collideWithGroup in world.collisionGroups:
-                    for other in collideWithGroup:
-                        if not other.indestructible:
-                            dist = other.getDistance(mousePos, minDist)
-                            if dist and dist < minDist:
-                                minDist = dist
-                                toInteract = other
-                if toInteract and minDist < toInteract.radius:
-                    toInteract.sclollAction(event.y)
-                else:
-
-                    # Zoom
-                    world.camera.zoom *= 1 + event.y * 0.1
-                    world.camera.pos += (mousePos - world.camera.pos) * (event.y * 0.1)
+                # Zoom
+                camera.zoom *= 1 + event.y * 0.1
+                camera.pos += (mousePos - camera.pos) * (event.y * 0.1)
 
         # Obtention de l'état de la sourie
         left, middle, right = pygame.mouse.get_pressed()
@@ -266,58 +266,49 @@ class Interface:
 
 
         elif self.state == "deleting":
-            # Supprime les nodes
-            # if self.hovered and not self.hovered.indestructible:
-            #     self.hovered.delete()
-            minDist = 0.5
-            toDelete = None
-            for collideWithGroup in world.collisionGroups:
-                for other in collideWithGroup:
-                    if not other.indestructible:
-                        dist = other.getDistance(mousePos, minDist)
-                        if dist and dist < minDist:
-                            minDist = dist
-                            toDelete = other
-            if toDelete and minDist < toDelete.radius:
-                toDelete.delete()
+
+            for destructible in world.destructibles:
+                pos, force = destructible.getContactPos(mousePos, 0.01)
+                if pos:
+                    destructible.delete()
 
         return running
 
-    def draw(self, world):
+    def draw(self, camera):
 
         # Affiche la selection
         img = self.font.render("hovered: " + str(self.hovered), True, "#000000")
-        world.screen.blit(img, pygame.Vector2(10, 10))
+        camera.screen.blit(img, pygame.Vector2(10, 10))
 
         img = self.font.render("selected: " + str(self.selected), True, "#000000")
-        world.screen.blit(img, pygame.Vector2(10, 30))
+        camera.screen.blit(img, pygame.Vector2(10, 30))
 
         img = self.font.render("LinkTool: " + str(self.linkType), True, "#000000")
-        world.screen.blit(img, pygame.Vector2(10, 50))
+        camera.screen.blit(img, pygame.Vector2(10, 50))
         img = self.font.render("NodeTool: " + str(self.nodeType), True, "#000000")
-        world.screen.blit(img, pygame.Vector2(10, 70))
+        camera.screen.blit(img, pygame.Vector2(10, 70))
 
         if self.state == "idle":
             if self.allowAddNode:
                 # Dessine les liens possibles
                 for node in self.linkables:
-                    pos = world.camera.posToScreen(node.pos, world.screen)
-                    pygame.draw.line(world.screen, "#ff8800", pos, pygame.mouse.get_pos())
+                    pos = camera.posToScreen(node.pos, camera.screen)
+                    pygame.draw.line(camera.screen, "#ff8800", pos, pygame.mouse.get_pos())
 
         elif self.state == "dragging":
             if self.selected:
-                pos = world.camera.posToScreen(self.selected.pos, world.screen)
-                pygame.draw.line(world.screen, "#ffffff", pos, pygame.mouse.get_pos())
+                pos = camera.posToScreen(self.selected.pos, camera.screen)
+                pygame.draw.line(camera.screen, "#ffffff", pos, pygame.mouse.get_pos())
             else:
                 self.state = "idle"
 
         elif self.state == "linking":
             if self.selected:
-                pos = world.camera.posToScreen(self.selected.pos, world.screen)
-                ghostPos = world.camera.posToScreen(self.ghostNodePos, world.screen)
-                pygame.draw.circle(world.screen, "#ffffff", pos, self.linkType.maxLength * world.camera.zoom, 1)
-                pygame.draw.circle(world.screen, "#ffffff", ghostPos, 0.2 * world.camera.zoom, 1)
-                pygame.draw.line(world.screen, "#ffffff", pos, pygame.mouse.get_pos())
+                pos = camera.posToScreen(self.selected.pos, camera.screen)
+                ghostPos = camera.posToScreen(self.ghostNodePos, camera.screen)
+                pygame.draw.circle(camera.screen, "#ffffff", pos, self.linkType.maxLength * camera.zoom, 1)
+                pygame.draw.circle(camera.screen, "#ffffff", ghostPos, 0.2 * camera.zoom, 1)
+                pygame.draw.line(camera.screen, "#ffffff", pos, pygame.mouse.get_pos())
             else:
                 self.state = "idle"
 

@@ -1,43 +1,40 @@
 # Example file showing a basic pygame "game loop"
 import pygame
-from object import Object
 from copy import copy
 from math import cos, sin
+from classes.abstract.collidable import Collidable
+from classes.abstract.updatable import Updatable
+from classes.abstract.drawable import Drawable
 
 
-# font = pygame.font.SysFont("silomttf", 48)
+class Node(Collidable, Updatable, Drawable):
 
-class Node(Object):
+    def __init__(self, pos, world, mass=2, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
+                 collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5):
+        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith)
 
-    def __init__(self, pos, world, collisionGroup, collideWithGroups, mass=2,
-                 radius=0.12, locked=False, indestructible=True, color="#ffffff", drawingGroup=1, N=10, mu=10,
-                 startDelay=5):
-        # pos: pygame.Vector2
-        # links: Link[]
-
-        super().__init__(pos=pos, world=world, collisionGroup=collisionGroup, collideWithGroups=collideWithGroups,
-                         drawingGroup=drawingGroup, updateGroup=1, radius=radius, locked=locked, N=N, mu=mu, mass=mass,
-                         startDelay=startDelay, indestructible=indestructible)
+        self.N = N
+        self.mu = mu
+        self.radius = radius
+        self.locked = locked
+        self.age = -startDelay
         self.links = []
+        self.world = world
         self.vel = pygame.Vector2(0, 0)  # m/s
         self.acc = pygame.Vector2(0, 0)  # m/s^2
-        self.force = pygame.Vector2(0, 0)  # N
+        self.force = pygame.Vector2(0, 0)  #
+        self.pos = pos
         self.mass = mass  # Kg
-        self.world.nodes.append(self)
         self.color = color
         self.spin = 0  # rad/s
         self.torque = 0  # Nm
         self.momentInertia = (3.14159 * self.radius ** 4) / 4
         self.angle = 0
-        self.N = N
-        self.mu = mu
-
 
     def addLink(self, link):
         self.links.append(link)
 
     def update(self, dt):
-        super().update(dt)
         if not self.locked:
             if self.age > 0:
                 self.force += self.world.gravity * self.mass * min(1, (self.age) * 1)
@@ -50,46 +47,47 @@ class Node(Object):
 
         self.force = pygame.Vector2(0, 0)
         self.torque = 0
+        self.age += dt
 
     def draw(self, camera):
-        pos = camera.posToScreen(self.pos, self.world.screen)
+        pos = camera.posToScreen(self.pos)
 
         # Dessine le node
-        pygame.draw.circle(self.world.screen, self.color, pos, self.radius * camera.zoom * 1.1)
-        pygame.draw.circle(self.world.screen, "#000000", pos, self.radius * camera.zoom * 1.1, 2)
+        pygame.draw.circle(camera.screen, self.color, pos, self.radius * camera.zoom * 1.1)
+        pygame.draw.circle(camera.screen, "#000000", pos, self.radius * camera.zoom * 1.1, 2)
         X1 = pygame.Vector2(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
         X2 = pygame.Vector2(X1.y, -X1.x)
-        pygame.draw.line(self.world.screen, "#000000", pos - X1, pos + X1)
-        pygame.draw.line(self.world.screen, "#000000", pos - X2, pos + X2)
+        pygame.draw.line(camera.screen, "#000000", pos - X1, pos + X1)
+        pygame.draw.line(camera.screen, "#000000", pos - X2, pos + X2)
 
         # Dessine l'age'
         if self.age < 0:
             font = pygame.font.SysFont("silomttf", 24)
             img = font.render(str(int(-self.age)) + "s", True, "#000000")
-            self.world.screen.blit(img, pos + pygame.Vector2(20, -20))
+            camera.screen.blit(img, pos + pygame.Vector2(20, -20))
         #
         # # Dessine la masse
         # font = pygame.font.SysFont("silomttf", 24)
         # img = font.render(str(self.mass), True, "#000000")
-        # self.world.screen.blit(img, pos)
+        # camera.screen.blit(img, pos)
 
     # def delete(self):
     #    for link in self.links:
     #         link.delete = True
 
     def delete(self):
-        if super().delete():
-            if self in self.world.nodes:
-                self.world.nodes.remove(self)
-            links = copy(self.links)
-            for link in links:
-                link.delete()
+        links = copy(self.links)
+        for link in links:
+            link.delete()
+        Collidable.delete(self)
+        Updatable.delete(self)
+        Drawable.delete(self)
 
     def getDistance(self, pos, maxDist=10):
         dist = None
         if pos != self.pos:
             diff = self.pos - pos
-            if abs(diff.x) < (maxDist)*2 and abs(diff.y) < (maxDist)*2:
+            if abs(diff.x) < (maxDist) * 2 and abs(diff.y) < (maxDist) * 2:
                 dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
         return dist
 
@@ -128,8 +126,8 @@ class Node(Object):
                 norm = pygame.Vector2(unit.y, -unit.x)
 
                 # mu
-                self.force -= unit*vel*unit*100
+                self.force -= unit * vel * unit * 100
 
-                self.force += -norm*(vel)*norm*friction*self.mass/self.radius*2
-                spin = -(norm * vel) * self.radius*2
-                self.torque += spin*friction
+                self.force += -norm * (vel) * norm * friction * self.mass / self.radius * 2
+                spin = -(norm * vel) * self.radius
+                self.torque += spin * friction * 2

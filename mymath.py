@@ -12,4 +12,8 @@ def getDiffLengthUnitNorm(pos1, pos2):
         raise ValueError('Impossible de updateValues'+str(pos1)+" : "+str(pos2))
 
 
-
+def newGroups(nb):
+    list = []
+    for i in range(nb):
+        list.append([])
+    return list
