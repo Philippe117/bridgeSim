@@ -1,6 +1,5 @@
 # Example file showing a basic pygame "game loop"
 import pygame
-from classes.abstract.object import Object
 from mymath import getDiffLengthUnitNorm
 from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable
@@ -86,13 +85,19 @@ class Link(Collidable, Updatable, Drawable):
         self.pos = (self.node1.pos + self.node2.pos) / 2
 
     def delete(self):
-        if self in self.node1.links:
-            self.node1.mass -= self.mass / 2
-        if self in self.node2.links:
-            self.node2.mass -= self.mass / 2
-        Collidable.delete(self)
-        Updatable.delete(self)
-        Drawable.delete(self)
+        if not self.deleteFlag:
+            super().delete()
+            if self in self.node1.links:
+                if self.node1.mass > 0:
+                    self.node1.mass -= self.mass / 2
+                else:
+                    raise ValueError(str(self.mass) + ":" + str(self.node1.mass))
+
+            if self in self.node2.links:
+                if self.node2.mass > 0:
+                    self.node2.mass -= self.mass / 2
+                else:
+                    raise ValueError(str(self.mass) + ":" + str(self.node2.mass))
 
     def getDistance(self, pos, maxDist=10):
         dist = None
@@ -155,7 +160,7 @@ class Link(Collidable, Updatable, Drawable):
         vel = (self.node1.vel * dist2 + self.node2.vel * dist1) / length
         return vel
 
-    def collide(self, pos, force, vel, friction):
+    def collide(self, pos, force, vel, friction, dt):
 
         diff1 = self.node1.pos - pos
         diff2 = self.node2.pos - pos

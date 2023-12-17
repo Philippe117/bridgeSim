@@ -5,9 +5,10 @@ from math import cos, sin
 from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable
 from classes.abstract.drawable import Drawable
+from classes.abstract.linkable import Linkable
 
 
-class Node(Collidable, Updatable, Drawable):
+class Node(Collidable, Updatable, Drawable, Linkable):
 
     def __init__(self, pos, world, mass=2, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
                  collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5):
@@ -76,12 +77,11 @@ class Node(Collidable, Updatable, Drawable):
     #         link.delete = True
 
     def delete(self):
-        links = copy(self.links)
-        for link in links:
-            link.delete()
-        Collidable.delete(self)
-        Updatable.delete(self)
-        Drawable.delete(self)
+        if not self.deleteFlag:
+            super().delete()
+            links = copy(self.links)
+            for link in links:
+                link.delete()
 
     def getDistance(self, pos, maxDist=10):
         dist = None
@@ -116,7 +116,7 @@ class Node(Collidable, Updatable, Drawable):
         else:
             return -self.vel
 
-    def collide(self, pos, force, vel, friction):
+    def collide(self, pos, force, vel, friction, dt):
         self.force += force
         if pos != self.pos:
             diff = self.pos - pos
@@ -126,8 +126,8 @@ class Node(Collidable, Updatable, Drawable):
                 norm = pygame.Vector2(unit.y, -unit.x)
 
                 # mu
-                self.force -= unit * vel * unit * 100
+                self.force -= unit * vel * unit * self.mass / dt *0.2
 
-                self.force += -norm * (vel) * norm * friction * self.mass / self.radius * 2
+                self.force += -norm * (vel) * norm * friction * self.mass / self.radius * self.mass
                 spin = -(norm * vel) * self.radius
-                self.torque += spin * friction * 2
+                self.torque += spin * friction * self.momentInertia * 300

@@ -85,9 +85,8 @@ class Interface:
             if self.hovered and self.hovered != self.selected and dist < self.linkType.maxLength:
                 link = connexionCheck(self.selected, self.hovered)
                 if link:
-                    if not link.indestructible:
-                        link.delete()
-                        self.linkType(self.hovered, self.selected, world)
+                    link.delete()
+                    self.linkType(self.hovered, self.selected, world)
                 else:
                     self.linkType(self.hovered, self.selected, world)
 
@@ -150,12 +149,48 @@ class Interface:
 
     def update(self, world, camera, running):
         mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_1]:
+            self.linkType = WoodLink
+            self.nodeType = WoodNode
+        elif keys[pygame.K_2]:
+            self.linkType = PaveLink
+            self.nodeType = PaveNode
+        elif keys[pygame.K_3]:
+            self.linkType = SteelLink
+            self.nodeType = SteelNode
+        elif keys[pygame.K_4]:
+            self.linkType = JackLink
+            self.nodeType = JackNode
+        elif keys[pygame.K_5]:
+            self.linkType = PullerLink
+            self.nodeType = JackNode
+        elif keys[pygame.K_6]:
+            self.linkType = SpringLink
+            self.nodeType = JackNode
+        elif keys[pygame.K_7]:
+            pass
+        elif keys[pygame.K_8]:
+            pass
+        elif keys[pygame.K_9]:
+            pass
+        elif keys[pygame.K_0] and not self.onsCar:
+            pos = pygame.Vector2(-18, -0.7)
+            size = pygame.Vector2(3, 1)
+            Car(pos, size, world)
+        self.onsCar = keys[pygame.K_0]
+
+
+
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEWHEEL:
+
+
                 #
                 # minDist = 0.5
                 # toInteract = None
@@ -198,7 +233,7 @@ class Interface:
 
         self.hovered = None
         # Obtien la liste des points à proximité du curseur
-        proximities = world.getNodesInRange(mousePos, self.linkType.maxLength)
+        proximities = world.getLinkables(mousePos, self.linkType.maxLength)
         self.linkables = []
         if proximities:
             # Détermine quel nodes peuvent être connectés
@@ -211,33 +246,6 @@ class Interface:
         if self.state == "idle":
             if self.allowAddNode:
                 pass
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_1]:
-                self.linkType = WoodLink
-                self.nodeType = WoodNode
-            elif keys[pygame.K_2]:
-                self.linkType = PaveLink
-                self.nodeType = PaveNode
-            elif keys[pygame.K_3]:
-                self.linkType = SteelLink
-                self.nodeType = SteelNode
-            elif keys[pygame.K_4]:
-                self.linkType = JackLink
-                self.nodeType = JackNode
-            elif keys[pygame.K_5]:
-                self.linkType = PullerLink
-                self.nodeType = JackNode
-            elif keys[pygame.K_8]:
-                self.linkType = CarLink
-                self.nodeType = CarNode
-            elif keys[pygame.K_9]:
-                self.linkType = CarLink
-                self.nodeType = TireNode
-            elif keys[pygame.K_0] and not self.onsCar:
-                pos = pygame.Vector2(-18, -0.7)
-                size = pygame.Vector2(3, 1)
-                Car(pos, size, world)
-            self.onsCar = keys[pygame.K_0]
         # Permet de déplacer un node avec la sourie
         elif self.state == "dragging":
             if self.selected:
@@ -292,20 +300,20 @@ class Interface:
             if self.allowAddNode:
                 # Dessine les liens possibles
                 for node in self.linkables:
-                    pos = camera.posToScreen(node.pos, camera.screen)
+                    pos = camera.posToScreen(node.pos)
                     pygame.draw.line(camera.screen, "#ff8800", pos, pygame.mouse.get_pos())
 
         elif self.state == "dragging":
             if self.selected:
-                pos = camera.posToScreen(self.selected.pos, camera.screen)
+                pos = camera.posToScreen(self.selected.pos)
                 pygame.draw.line(camera.screen, "#ffffff", pos, pygame.mouse.get_pos())
             else:
                 self.state = "idle"
 
         elif self.state == "linking":
             if self.selected:
-                pos = camera.posToScreen(self.selected.pos, camera.screen)
-                ghostPos = camera.posToScreen(self.ghostNodePos, camera.screen)
+                pos = camera.posToScreen(self.selected.pos)
+                ghostPos = camera.posToScreen(self.ghostNodePos)
                 pygame.draw.circle(camera.screen, "#ffffff", pos, self.linkType.maxLength * camera.zoom, 1)
                 pygame.draw.circle(camera.screen, "#ffffff", ghostPos, 0.2 * camera.zoom, 1)
                 pygame.draw.line(camera.screen, "#ffffff", pos, pygame.mouse.get_pos())

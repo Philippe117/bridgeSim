@@ -7,12 +7,17 @@ class Linker(ABC, Base):
         self.linkables = []
 
     def getLinkables(self, pos, maxDist=10):
-        linkables = []
+        proximities = []
         for linkable in self.linkables:
-            if linkable.getDistance(pos, maxDist) < maxDist:
-                linkables.append(linkable)
-        return linkables
+            dist = linkable.getDistance(pos, maxDist)
+            if dist and dist < maxDist:
+                proximities.append({"node": linkable, "dist": dist})
+        proximities.sort(key=sortProximity)
+        return proximities
 
+# Sert pour trier les elements
+def sortProximity(proximities):
+    return proximities["dist"]
 
 class Linkable(ABC, Base):
     def __init__(self, world: Linker, N: float, mu: float, radius: float, pos: object, collisionGroup: int, drawGroup: int, updateGroup: int, collideWith: list = None):
@@ -25,6 +30,7 @@ class Linkable(ABC, Base):
         raise NotImplementedError("Must override getDistance")
 
     def delete(self):
-        super().delete()
-        if self in self.linkables:
-            self.linkables.remove(self)
+        if not self.deleteFlag:
+            super().delete()
+            if self in self.linkables:
+                self.linkables.remove(self)

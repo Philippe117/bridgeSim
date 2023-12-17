@@ -38,8 +38,8 @@ class Collidable(ABC, Base):
                     velDiff = vel1 - vel2
                     friction = self.mu * other.mu
                     restitution = force * self.N * other.N
-                    self.collide(pos, restitution, velDiff, friction)
-                    other.collide(pos, -restitution, -velDiff, friction)
+                    self.collide(pos, restitution, velDiff, friction, dt)
+                    other.collide(pos, -restitution, -velDiff, friction, dt)
 
     @abstractmethod
     def getContactPos(self, pos, radius):
@@ -50,10 +50,11 @@ class Collidable(ABC, Base):
         raise NotImplementedError("Must override getVelAtPoint")
 
     @abstractmethod
-    def collide(self, pos, force, vel, friction):
+    def collide(self, pos, force, vel, friction, dt):
         raise NotImplementedError("Must override collide")
 
     def delete(self):
-        super().delete()
-        if self in self.collisionGroup:
-            self.collisionGroup.remove(self)
+        if not self.deleteFlag:
+            super().delete()
+            if self in self.collisionGroup:
+                self.collisionGroup.remove(self)

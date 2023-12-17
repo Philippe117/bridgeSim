@@ -24,12 +24,13 @@ class Garage(Building):
 
     def draw(self, camera):
 
-        pos = camera.posToScreen(self.pos, self.world.screen)
+        pos = camera.posToScreen(self.pos)
         rect = pygame.Rect(pos.x-2*camera.zoom, pos.y-2*camera.zoom, 4*camera.zoom, 2*camera.zoom)
-        pygame.draw.rect(self.world.screen, "#000000", rect)
+        pygame.draw.rect(camera.screen, "#000000", rect)
 
     def delete(self):
-        super().delete()
+        if not self.deleteFlag:
+            super().delete()
 
 
 

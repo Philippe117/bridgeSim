@@ -12,7 +12,7 @@ class JackLink(Link, Destructible):
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=2,
                          KP=40000, KD=150, KI=0, friction=2, brakePoint=8000, color="#1144aa", radius=0.15,
-                         drawGroup=5, N=25, mu=0.6)
+                         drawGroup=5, N=30, mu=0.6)
 
         self.maxLength = max(self.length, self.length * extention)
         self.minLength = min(self.length, self.length * extention)
@@ -49,17 +49,28 @@ class JackLink(Link, Destructible):
         pygame.draw.polygon(camera.screen, color, [pos1, pos2, pos3, pos4], 2)
 
     def sclollAction(self, direction):
-        self.cmdLength = max(self.minLength, min(self.maxLength, self.curLength + direction * JackLink.extentionSpeed/4))
+        self.cmdLength = max(self.minLength,
+                             min(self.maxLength, self.curLength + direction * JackLink.extentionSpeed / 4))
         return True
 
 
 class JackNode(Node, Destructible):
     def __init__(self, pos, world):
         super().__init__(pos=pos, world=world, collisionGroup=1, collideWith=[], mass=4,
-                         radius=0.2, color="#888888", drawGroup=9, N=25,
+                         radius=0.2, color="#888888", drawGroup=9, N=30,
                          mu=0.6)
 
 
 class PullerLink(JackLink):
     def __init__(self, node1, node2, world, extention=0.5):
         super().__init__(node1, node2, world, extention)
+
+
+class SpringLink(Link, Destructible):
+    maxLength = 3
+    minLength = 0.5
+
+    def __init__(self, node1, node2, world, extention=1.5):
+        super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=2,
+                         KP=300, KD=10, KI=0, friction=2, brakePoint=8000, color="#ff8800", radius=0.15,
+                         drawGroup=5, N=30, mu=0.6)

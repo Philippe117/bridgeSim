@@ -2,34 +2,24 @@ import pygame
 from copy import copy
 from math import cos, sin
 from abc import ABC, abstractmethod
+from classes.abstract.updatable import Updatable
+from classes.abstract.drawable import Drawable
 
 
 # font = pygame.font.SysFont("silomttf", 48)
 
-class Building():
+class Building(Updatable, Drawable):
 
     def __init__(self, pos, world, drawingGroup, updateGroup):
+        super().__init__(pos=pos, world=world, drawGroup=drawingGroup, updateGroup=updateGroup)
+
+        # world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith
         self.pos = pos
         self.world = world
 
-    @abstractmethod
-    def update(self, dt):
-        raise NotImplementedError("Must override update")
-
-    @abstractmethod
-    def draw(self, camera):
-        raise NotImplementedError("Must override draw")
-
     def delete(self):
         if not self.deleteFlag:
-            self.deleteFlag = True
-            if self in self.drawingGroup:
-                self.drawingGroup.remove(self)
-            if self in self.updateGroup:
-                self.updateGroup.remove(self)
-            return True
-        return False
-
+            super().delete()
 
     def getDistance(self, pos, maxDist=10):
         dist = None

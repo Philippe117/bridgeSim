@@ -30,7 +30,7 @@ def config(self, nb=5, h=WoodLink.maxLength):
     node6 = GroundNode(pygame.Vector2(10, 2), self)
     GroundLink(node5, node6, self)
 
-    #Garage(pygame.Vector2(-18, -0.5), self)
+    # Garage(pygame.Vector2(-18, -0.5), self)
 
 
 

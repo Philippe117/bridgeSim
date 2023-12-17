@@ -7,10 +7,10 @@ class Camera:
         self.pos = pos
         self.screen = screen
 
-    def posToScreen(self, pos):
+    def posToScreen(self, pos: object):
         screenDim = pygame.Vector2(self.screen.get_width(), self.screen.get_height())
         return (pos - self.pos) * self.zoom + screenDim / 2
 
-    def screenToPos(self, pos):
+    def screenToPos(self, pos: object):
         screenDim = pygame.Vector2(self.screen.get_width(), self.screen.get_height())
         return (pos - screenDim / 2) / self.zoom + self.pos

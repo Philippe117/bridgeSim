@@ -24,8 +24,8 @@ class Interactible(ABC, Base):
         self.interactibles.append(self)
 
     @abstractmethod
-    def isWithin(self, pos):
-        raise NotImplementedError("Must override isWithin")
+    def getContactPos(self, pos, radius):
+        raise NotImplementedError("Must override getContactPos")
 
     def delete(self):
         super().delete()
