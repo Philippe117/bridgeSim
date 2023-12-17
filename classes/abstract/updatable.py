@@ -14,8 +14,11 @@ class Updator(ABC, Base):
 
 
 class Updatable(ABC, Base):
-    def __init__(self, world: Updator, N: float, mu: float, radius: float, pos: object, collisionGroup: int, drawGroup: int, updateGroup: int, collideWith: list = None):
-        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        world = kwargs.get("world")
+
+        updateGroup = kwargs.get("updateGroup")
         self.updateGroup = world.updateGroups[updateGroup]
         self.updateGroup.append(self)
 

@@ -8,8 +8,10 @@ class Destructor(ABC):
 
 
 class Destructible(ABC, Base):
-    def __init__(self, world: Destructor, N: float, mu: float, radius: float, pos: object, collisionGroup: int, drawGroup: int, updateGroup: int, collideWith: list = None):
-        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        world = kwargs.get("world")
+
         self.destructibles = world.destructibles
         self.destructibles.append(self)
 

@@ -13,8 +13,11 @@ class Drawer():
 
 
 class Drawable(ABC, Base):
-    def __init__(self, world: Drawer, N: float, mu: float, radius: float, pos: object, collisionGroup: int, drawGroup: int, updateGroup: int, collideWith: list = None):
-        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        world = kwargs.get("world")
+        drawGroup = kwargs.get("drawGroup")
+
         self.drawGroup = world.drawGroups[drawGroup]
         self.drawGroup.append(self)
 

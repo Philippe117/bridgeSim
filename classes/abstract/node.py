@@ -12,7 +12,8 @@ class Node(Collidable, Updatable, Drawable, Linkable):
 
     def __init__(self, pos, world, mass=2, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
                  collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5):
-        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith)
+        super().__init__(world=world, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
+                         drawGroup=drawGroup, updateGroup=updateGroup, collideWith=collideWith)
 
         self.N = N
         self.mu = mu
@@ -126,7 +127,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
                 norm = pygame.Vector2(unit.y, -unit.x)
 
                 # mu
-                self.force -= unit * vel * unit * self.mass / dt *0.2
+                self.force -= unit * vel * unit * self.mass / dt * 0.2
 
                 self.force += -norm * (vel) * norm * friction * self.mass / self.radius * self.mass
                 spin = -(norm * vel) * self.radius

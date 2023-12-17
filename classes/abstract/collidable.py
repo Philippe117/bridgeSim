@@ -14,8 +14,15 @@ class Collidor(ABC):
 
 
 class Collidable(ABC, Base):
-    def __init__(self, world: Collidor, N: float, mu: float, radius: float, pos: object, collisionGroup: int, drawGroup: int, updateGroup: int, collideWith: list = None):
-        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        world = kwargs.get("world")
+        collideWith = kwargs.get("collideWith")
+        collisionGroup = kwargs.get("collisionGroup")
+        N = kwargs.get("N")
+        mu = kwargs.get("mu")
+        radius = kwargs.get("radius")
+
         if collideWith is None:
             collideWith = []
         if not world.collisionGroups:

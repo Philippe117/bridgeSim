@@ -20,8 +20,10 @@ def sortProximity(proximities):
     return proximities["dist"]
 
 class Linkable(ABC, Base):
-    def __init__(self, world: Linker, N: float, mu: float, radius: float, pos: object, collisionGroup: int, drawGroup: int, updateGroup: int, collideWith: list = None):
-        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        world = kwargs.get("world")
+
         self.linkables = world.linkables
         self.linkables.append(self)
 

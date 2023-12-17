@@ -15,7 +15,8 @@ class Link(Collidable, Updatable, Drawable):
                  KP=100000, KD=10000, KI=4000, friction=2000, brakePoint=15000, color="#888888", radius=0.1,
                  drawGroup=0, N=50, mu=10, updateGroup=0):
         pos = (node1.pos + node2.pos) / 2
-        super().__init__(world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, [])
+        super().__init__(world=world, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
+                         drawGroup=drawGroup, updateGroup=updateGroup, collideWith=[])
 
         self.radius = radius
         self.node1 = node1

@@ -15,14 +15,14 @@ class Second(ABC, O):
         print("2")
 
 class Third(ABC, O):
-    def test(self, q):
+    def test(self, **kwargs):
         super().test()
-        print("3"+q)
+        print(kwargs.get("test"))
 
-class new(First, Second, Third):
+class new(Third):
     pass
 
 
 t = new()
 
-t.test("t")
+t.test(test="toto")
