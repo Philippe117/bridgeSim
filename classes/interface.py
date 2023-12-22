@@ -3,6 +3,7 @@ from classes.pave import *
 from classes.steel import *
 from classes.car import *
 from classes.mecanical import *
+from copy import copy
 
 
 def connexionCheck(me, node):
@@ -46,6 +47,8 @@ class Interface:
         self.offsetPos = None
         self.onsCar = False
 
+        self.gridResolution = 100
+
         self.linkables = []
 
     def pressLeft(self, world, mousePos):
@@ -82,11 +85,25 @@ class Interface:
 
             if self.hovered and self.hovered != self.selected and dist < self.linkType.maxLength:
                 link = connexionCheck(self.selected, self.hovered)
-                if link:
+                print()
+                if link and Destructible in type(link).__bases__:
                     link.delete()
                     self.linkType(node1=self.hovered, node2=self.selected, world=world)
+                    if Destructible in type(self.hovered).__bases__:
+                        links = copy(self.hovered.links)
+                        self.hovered.links = []
+                        newNode = self.nodeType(self.hovered.pos, self.hovered.world)
+                        newNode.age = self.hovered.age
+                        for link in links:
+                            if link.node1 == self.hovered:
+                                link.connectNode1(newNode)
+                            if link.node2 == self.hovered:
+                                link.connectNode2(newNode)
+                        self.hovered.delete()
+                        self.hovered = newNode
                 else:
                     self.linkType(node1=self.hovered, node2=self.selected, world=world)
+
 
             else:
                 # Ajoute un node avec un lien
@@ -143,6 +160,8 @@ class Interface:
 
     def update(self, world, camera, running):
         mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+        mousePos.x = round(mousePos.x*self.gridResolution, 0)/self.gridResolution
+        mousePos.y = round(mousePos.y*self.gridResolution, 0)/self.gridResolution
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_1]:
@@ -269,6 +288,12 @@ class Interface:
 
     def draw(self, camera):
 
+        mousePos = camera.screenToPos(pygame.mouse.get_pos())
+        mousePos.x = round(mousePos.x*self.gridResolution, 0)/self.gridResolution
+        mousePos.y = round(mousePos.y*self.gridResolution, 0)/self.gridResolution
+        mousePos = camera.posToScreen(mousePos)
+
+
         # Affiche la selection
         img = self.font.render("hovered: " + str(self.hovered), True, "#000000")
         camera.screen.blit(img, pygame.Vector2(10, 10))
@@ -286,12 +311,12 @@ class Interface:
                 # Dessine les liens possibles
                 for node in self.linkables:
                     pos = camera.posToScreen(node.pos)
-                    pygame.draw.line(camera.screen, "#ff8800", pos, pygame.mouse.get_pos())
+                    pygame.draw.line(camera.screen, "#ff8800", pos, mousePos)
 
         elif self.state == "dragging":
             if self.selected:
                 pos = camera.posToScreen(self.selected.pos)
-                pygame.draw.line(camera.screen, "#ffffff", pos, pygame.mouse.get_pos())
+                pygame.draw.line(camera.screen, "#ffffff", pos, mousePos)
             else:
                 self.state = "idle"
 
@@ -301,9 +326,19 @@ class Interface:
                 ghostPos = camera.posToScreen(self.ghostNodePos)
                 pygame.draw.circle(camera.screen, "#ffffff", pos, self.linkType.maxLength * camera.zoom, 1)
                 pygame.draw.circle(camera.screen, "#ffffff", ghostPos, 0.2 * camera.zoom, 1)
-                pygame.draw.line(camera.screen, "#ffffff", pos, pygame.mouse.get_pos())
+                pygame.draw.line(camera.screen, "#ffffff", pos, mousePos)
             else:
                 self.state = "idle"
 
         elif self.state == "deleting":
             pass
+
+        # max = 20
+        # for x in range(-max, max):
+        #     pos1 = camera.posToScreen(pygame.Vector2(x, -max))
+        #     pos2 = camera.posToScreen(pygame.Vector2(x, max))
+        #     pygame.draw.line(camera.screen, "#ffffff", pos1, pos2)
+        # for y in range(-max, max):
+        #     pos1 = camera.posToScreen(pygame.Vector2(-max, y))
+        #     pos2 = camera.posToScreen(pygame.Vector2(max, y))
+        #     pygame.draw.line(camera.screen, "#ffffff", pos1, pos2)

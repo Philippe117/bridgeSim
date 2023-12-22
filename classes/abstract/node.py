@@ -86,10 +86,9 @@ class Node(Collidable, Updatable, Drawable, Linkable):
 
     def getDistance(self, pos, maxDist=10):
         dist = None
-        if pos != self.pos:
-            diff = self.pos - pos
-            if abs(diff.x) < (maxDist) * 2 and abs(diff.y) < (maxDist) * 2:
-                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+        diff = self.pos - pos
+        if abs(diff.x) < maxDist * 2 and abs(diff.y) < maxDist * 2:
+            dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
         return dist
 
     def getContactPos(self, pos, radius):
@@ -97,12 +96,16 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         force = None
         maxDist = self.radius + radius
         dist = self.getDistance(pos, maxDist=maxDist)
-        if dist:
-            diff = self.pos - pos
-            unit = diff / dist
-            if dist < (self.radius + radius):
-                contactPos = pos + unit * self.radius
-                force = unit * (dist - maxDist) * self.N
+        if dist != None:
+            if dist > 0:
+                diff = self.pos - pos
+                unit = diff / dist
+                if dist < (self.radius + radius):
+                    contactPos = pos + unit * self.radius
+                    force = unit * (dist - maxDist) * self.N
+            else:
+                contactPos = pos
+                force = pygame.Vector2(0, 0)
         return contactPos, force
 
     def getVelAtPoint(self, pos):

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from classes.abstract.base import Base
+from classes.abstract.destructible import Destructible
 
 
 class Linker(ABC, Base):
@@ -10,7 +11,7 @@ class Linker(ABC, Base):
         proximities = []
         for linkable in self.linkables:
             dist = linkable.getDistance(pos, maxDist)
-            if dist and dist < maxDist:
+            if dist != None and dist < maxDist:
                 proximities.append({"node": linkable, "dist": dist})
         proximities.sort(key=sortProximity)
         return proximities
