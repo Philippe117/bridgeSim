@@ -10,14 +10,20 @@ from classes.abstract.linkable import Linkable
 
 class Node(Collidable, Updatable, Drawable, Linkable):
 
-    def __init__(self, pos, world, mass=2, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
+    def __init__(self, pos, world, density=1000, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
                  collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5):
-        super().__init__(world=world, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
+
+        self.density = density
+        self.thickness = 0.1
+        self.radius = radius
+        self.surface = 3.14159*self.radius**2
+        mass = self.surface * self.thickness * self.density  # Kg
+        momentInertia = (mass*self.radius**2)/2
+        super().__init__(world=world, mass=mass, momentInertia=momentInertia, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
                          drawGroup=drawGroup, updateGroup=updateGroup, collideWith=collideWith)
 
         self.N = N
         self.mu = mu
-        self.radius = radius
         self.locked = locked
         self.age = -startDelay
         self.links = []
@@ -26,11 +32,9 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         self.acc = pygame.Vector2(0, 0)  # m/s^2
         self.force = pygame.Vector2(0, 0)  #
         self.pos = pos
-        self.mass = mass  # Kg
         self.color = color
         self.spin = 0  # rad/s
         self.torque = 0  # Nm
-        self.momentInertia = (3.14159 * self.radius ** 4) / 4
         self.angle = 0
 
     def addLink(self, link):
@@ -40,7 +44,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         if not self.locked:
             if self.age > 0:
                 self.force += self.world.gravity * self.mass * min(1, (self.age) * 1)
-            self.force -= self.vel * (self.world.friction * self.radius * self.radius) * dt
+            self.force -= self.vel * (self.world.friction * self.surface) * dt
             self.acc = self.force / self.mass
             self.vel += self.acc * dt
             self.pos += self.vel * dt
@@ -118,9 +122,10 @@ class Node(Collidable, Updatable, Drawable, Linkable):
             vel = self.vel + self.spin * dist * tangent
             return vel
         else:
-            return -self.vel
+            return self.vel
 
-    def collide(self, pos, force, vel, friction, dt):
+    def applyForce(self, pos, force, dt):
+
         self.force += force
         if pos != self.pos:
             diff = self.pos - pos
@@ -129,9 +134,5 @@ class Node(Collidable, Updatable, Drawable, Linkable):
                 unit = diff / dist
                 norm = pygame.Vector2(unit.y, -unit.x)
 
-                # mu
-                self.force -= unit * vel * unit * self.mass / dt * 0.2
-
-                self.force += -norm * (vel) * norm * friction * self.mass / self.radius * self.mass
-                spin = -(norm * vel) * self.radius
-                self.torque += spin * friction * self.momentInertia * 300
+                spin = norm * force * dist
+                self.torque += spin

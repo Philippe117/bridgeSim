@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+
+import pygame
+
 from mymath import newGroups
 from classes.abstract.base import Base
 
@@ -22,6 +25,8 @@ class Collidable(ABC, Base):
         N = kwargs.get("N")
         mu = kwargs.get("mu")
         radius = kwargs.get("radius")
+        mass = kwargs.get("mass")
+        momentInertia = kwargs.get("momentInertia")
 
         if collideWith is None:
             collideWith = []
@@ -33,6 +38,8 @@ class Collidable(ABC, Base):
         self.N = N
         self.mu = mu
         self.collisionGroup.append(self)
+        self.mass = mass
+        self.momentInertia = momentInertia
         self.radius = radius
 
     def computeCollisions(self, dt):
@@ -40,13 +47,27 @@ class Collidable(ABC, Base):
             for other in self.collisionGroups[collide]:
                 pos, force = other.getContactPos(self.pos, self.radius)
                 if pos:
+                    restitution = min(self.N*self.mass, other.N*other.mass)
+                    forceSum = force*restitution*10000
+
                     vel1 = self.getVelAtPoint(pos)
                     vel2 = other.getVelAtPoint(pos)
                     velDiff = vel1 - vel2
-                    friction = self.mu * other.mu
-                    restitution = force * self.N * other.N
-                    self.collide(pos, restitution, velDiff, friction, dt)
-                    other.collide(pos, -restitution, -velDiff, friction, dt)
+                    friction = min(self.mu*self.momentInertia, other.mu*other.momentInertia)
+
+                    forceLength = (force.x ** 2 + force.y ** 2) ** 0.5
+                    unit = force/forceLength
+                    norm = pygame.Vector2(unit.y, -unit.x)
+
+                    velDiffLength = velDiff*norm
+                    if abs(velDiffLength) > 1:
+                        friction /= 2
+
+                    forceSum -= norm * velDiff * norm * friction * 2000
+                    forceSum -= unit * velDiff * unit * restitution * 100
+
+                    self.applyForce(pos, forceSum, dt)
+                    other.applyForce(pos, -forceSum, dt)
 
     @abstractmethod
     def getContactPos(self, pos, radius):
@@ -57,7 +78,7 @@ class Collidable(ABC, Base):
         raise NotImplementedError("Must override getVelAtPoint")
 
     @abstractmethod
-    def collide(self, pos, force, vel, friction, dt):
+    def applyForce(self, pos, force, dt):
         raise NotImplementedError("Must override collide")
 
     def delete(self):

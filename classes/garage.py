@@ -1,6 +1,6 @@
 from classes.abstract.building import Building
 from time import time
-from classes.car import Car
+from classes.materials.car import Car
 import pygame
 
 

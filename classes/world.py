@@ -18,7 +18,7 @@ class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
         Linker.__init__(self)
 
         self.gravity = gravity
-        self.friction = 1000
+        self.friction = 10000
         self.level = level
         self.level(self)
         self.downLimit = 20

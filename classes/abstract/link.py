@@ -15,16 +15,18 @@ class Link(Collidable, Updatable, Drawable):
                  KP=100000, KD=10000, KI=4000, friction=2000, brakePoint=15000, color="#888888", radius=0.1,
                  drawGroup=0, N=50, mu=10, updateGroup=0):
         pos = (node1.pos + node2.pos) / 2
-        super().__init__(world=world, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
-                         drawGroup=drawGroup, updateGroup=updateGroup, collideWith=[])
-
-        self.radius = radius
+        self.density = density
+        self.thickness = 0.1
         self.node1 = node1
         self.node2 = node2
         self.updateValues()
+        mass = self.length * self.density * radius * self.thickness
+        momentInertia = mass/12*self.length
+        super().__init__(world=world, mass=mass, momentInertia=momentInertia, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
+                         drawGroup=drawGroup, updateGroup=updateGroup, collideWith=[])
+
+        self.radius = radius
         self.curLength = self.length
-        self.density = density
-        self.mass = self.length * self.density
         self.pos = pos
 
         self.connectNode1(node1)
@@ -65,18 +67,18 @@ class Link(Collidable, Updatable, Drawable):
     def update(self, dt):
         self.updateValues()
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
-            mass = (self.node1.mass + self.node2.mass) * 0.2
+            mass = min(self.node1.mass, self.node2.mass)
             err = self.length - self.curLength
             velDiff = self.node2.vel - self.node1.vel
-            delta = velDiff * self.unit
+            delta = (velDiff * self.unit)*abs(err)
             self.i += err * dt
-            self.load = (err * self.KP + delta * self.KD + self.i * self.KI) * mass
+            self.load = err * self.KP * mass
 
             if abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
                 self.delete()
             else:
-                self.node1.force += self.unit * self.load
-                self.node2.force -= self.unit * self.load
+                self.node1.force += self.unit * (self.load + (delta * self.KD + self.i * self.KI) * mass)
+                self.node2.force -= self.unit * (self.load + (delta * self.KD + self.i * self.KI) * mass)
 
                 self.node1.force += self.norm * velDiff * self.norm * self.friction
                 self.node2.force -= self.norm * velDiff * self.norm * self.friction
@@ -161,28 +163,20 @@ class Link(Collidable, Updatable, Drawable):
         vel = (self.node1.vel * dist2 + self.node2.vel * dist1) / length
         return vel
 
-    def collide(self, pos, force, vel, friction, dt):
+    def applyForce(self, pos, force, dt):
 
         diff1 = self.node1.pos - pos
         diff2 = self.node2.pos - pos
 
-        diff21 = self.node2.pos - self.node1.pos
-        length = (diff21.x ** 2 + diff21.y ** 2) ** 0.5
-        unit = diff21 / length
-        norm = pygame.Vector2(unit.y, -unit.x)
-
-        dist1 = abs(diff1 * unit)
-        dist2 = abs(diff2 * unit)
+        dist1 = abs(diff1 * self.unit)
+        dist2 = abs(diff2 * self.unit)
 
         # N
-        self.node1.force += force * (dist2 / length)
-        self.node2.force += force * (dist1 / length)
-        self.node1.force -= norm * vel * norm * 100 * (dist2 / length)
-        self.node2.force -= norm * vel * norm * 100 * (dist2 / length)
+        self.node1.force += force * (dist2 / self.length)
+        self.node2.force += force * (dist1 / self.length)
 
-        # mu
-        self.node1.force += unit * vel * unit * friction
-        self.node2.force += unit * vel * unit * friction
+        # self.node1.force -= self.norm * force * self.norm
+        # self.node2.force -= self.norm * force * self.norm
 
 
 def sign(num):

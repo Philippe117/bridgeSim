@@ -1,8 +1,8 @@
-from classes.wood import *
-from classes.pave import *
-from classes.steel import *
-from classes.car import *
-from classes.mecanical import *
+from classes.materials.wood import *
+from classes.materials.pave import *
+from classes.materials.steel import *
+from classes.materials.car import *
+from classes.materials.mecanical import *
 from copy import copy
 
 
@@ -258,7 +258,7 @@ class Interface:
                 else:
                     # self.selected.force += (mousePos + self.offsetPos - self.selected.pos) * 80000 - self.selected.vel * 1000
                     self.selected.force += (
-                                               mousePos - self.offsetPos - self.selected.pos) * 1000 - self.selected.vel * 100
+                                               mousePos - self.offsetPos - self.selected.pos) * self.selected.mass * 1000 - self.selected.vel * self.selected.mass * 100
 
         elif self.state == "linking":
 
