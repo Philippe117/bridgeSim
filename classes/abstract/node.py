@@ -11,10 +11,10 @@ from classes.abstract.linkable import Linkable
 class Node(Collidable, Updatable, Drawable, Linkable):
 
     def __init__(self, pos, world, density=1000, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
-                 collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5):
+                 collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5, thickness=0.1):
 
         self.density = density
-        self.thickness = 0.1
+        self.thickness = thickness
         self.radius = radius
         self.surface = 3.14159*self.radius**2
         mass = self.surface * self.thickness * self.density  # Kg
@@ -37,10 +37,14 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         self.torque = 0  # Nm
         self.angle = 0
 
+    def getRestitution(self):
+        return self.N*self.mass
+
     def addLink(self, link):
         self.links.append(link)
 
     def update(self, dt):
+        super(Node, self).update(dt)
         if not self.locked:
             if self.age > 0:
                 self.force += self.world.gravity * self.mass * min(1, (self.age) * 1)
@@ -136,3 +140,16 @@ class Node(Collidable, Updatable, Drawable, Linkable):
 
                 spin = norm * force * dist
                 self.torque += spin
+
+    def replace(self, NewType):
+        links = copy(self.links)
+        self.links = []
+        newNode = NewType(self.pos, self.world)
+        newNode.age = self.age
+        for link in links:
+            if link.node1 == self:
+                link.connectNode1(newNode)
+            if link.node2 == self:
+                link.connectNode2(newNode)
+        self.delete()
+        return newNode

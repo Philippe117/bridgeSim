@@ -33,7 +33,7 @@ class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
         Drawer.draw(self, camera)
 
     def update(self, dt):
-        overcompute = 5
+        overcompute = 10
         for i in range(overcompute):
             Updator.update(self, dt/overcompute)
         Collidor.computeCollisions(self, dt/overcompute)

@@ -13,14 +13,14 @@ class Link(Collidable, Updatable, Drawable):
 
     def __init__(self, node1: Node, node2: Node, world: object, collisionGroup=0, density=1,
                  KP=100000, KD=10000, KI=4000, friction=2000, brakePoint=15000, color="#888888", radius=0.1,
-                 drawGroup=0, N=50, mu=10, updateGroup=0):
+                 drawGroup=0, N=50, mu=10, updateGroup=0, thickness=0.1):
         pos = (node1.pos + node2.pos) / 2
         self.density = density
-        self.thickness = 0.1
+        self.thickness = thickness
         self.node1 = node1
         self.node2 = node2
         self.updateValues()
-        mass = self.length * self.density * radius * self.thickness
+        mass = self.density * self.length * radius * 2 * self.thickness
         momentInertia = mass/12*self.length
         super().__init__(world=world, mass=mass, momentInertia=momentInertia, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
                          drawGroup=drawGroup, updateGroup=updateGroup, collideWith=[])
@@ -40,15 +40,19 @@ class Link(Collidable, Updatable, Drawable):
         self.load = 0
         self.color = color
 
+    def getRestitution(self):
+        return self.N*self.mass
+        # return self.N*(self.node1.mass + self.node2.mass + self.mass)
+
     def connectNode1(self, node):
         self.node1 = node
         self.node1.addLink(self)
-        self.node1.mass += self.mass / 2
+        #self.node1.mass += self.mass / 2
 
     def connectNode2(self, node):
         self.node2 = node
         self.node2.addLink(self)
-        self.node2.mass += self.mass / 2
+        #self.node2.mass += self.mass / 2
 
     def draw(self, camera):
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
@@ -65,6 +69,7 @@ class Link(Collidable, Updatable, Drawable):
             pygame.draw.polygon(camera.screen, color, [pos1, pos2, pos3, pos4], 2)
 
     def update(self, dt):
+        super(Link, self).update(dt)
         self.updateValues()
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
             mass = min(self.node1.mass, self.node2.mass)
@@ -77,8 +82,8 @@ class Link(Collidable, Updatable, Drawable):
             if abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
                 self.delete()
             else:
-                self.node1.force += self.unit * (self.load + (delta * self.KD + self.i * self.KI) * mass)
-                self.node2.force -= self.unit * (self.load + (delta * self.KD + self.i * self.KI) * mass)
+                self.node1.force += self.unit * (self.load + (abs(err*10)*delta * self.KD + self.i * self.KI) * mass)
+                self.node2.force -= self.unit * (self.load + (abs(err*10)*delta * self.KD + self.i * self.KI) * mass)
 
                 self.node1.force += self.norm * velDiff * self.norm * self.friction
                 self.node2.force -= self.norm * velDiff * self.norm * self.friction
@@ -91,16 +96,18 @@ class Link(Collidable, Updatable, Drawable):
         if not self.deleteFlag:
             super().delete()
             if self in self.node1.links:
-                if self.node1.mass > 0:
-                    self.node1.mass -= self.mass / 2
-                else:
-                    raise ValueError(str(self.mass) + ":" + str(self.node1.mass))
+                # if self.node1.mass > 0:
+                #     self.node1.mass -= self.mass / 2
+                # else:
+                #     raise ValueError(str(self.mass) + ":" + str(self.node1.mass))
+                self.node1.links.remove(self)
 
             if self in self.node2.links:
-                if self.node2.mass > 0:
-                    self.node2.mass -= self.mass / 2
-                else:
-                    raise ValueError(str(self.mass) + ":" + str(self.node2.mass))
+                # if self.node2.mass > 0:
+                #     self.node2.mass -= self.mass / 2
+                # else:
+                #     raise ValueError(str(self.mass) + ":" + str(self.node2.mass))
+                self.node2.links.remove(self)
 
     def getDistance(self, pos, maxDist=10):
         dist = None

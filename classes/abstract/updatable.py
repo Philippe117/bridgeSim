@@ -22,9 +22,8 @@ class Updatable(ABC, Base):
         self.updateGroup = world.updateGroups[updateGroup]
         self.updateGroup.append(self)
 
-    @abstractmethod
     def update(self, dt):
-        raise NotImplementedError("Must override update")
+        super(Updatable, self).update(dt)
 
     def delete(self):
         super().delete()

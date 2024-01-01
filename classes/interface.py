@@ -85,22 +85,13 @@ class Interface:
 
             if self.hovered and self.hovered != self.selected and dist < self.linkType.maxLength:
                 link = connexionCheck(self.selected, self.hovered)
-                print()
-                if link and Destructible in type(link).__bases__:
+         #       print(type(link).__bases__)
+          #      test = type(link).__bases__
+                if link and hasattr( link, "destructibles"):
                     link.delete()
                     self.linkType(node1=self.hovered, node2=self.selected, world=world)
-                    if Destructible in type(self.hovered).__bases__:
-                        links = copy(self.hovered.links)
-                        self.hovered.links = []
-                        newNode = self.nodeType(self.hovered.pos, self.hovered.world)
-                        newNode.age = self.hovered.age
-                        for link in links:
-                            if link.node1 == self.hovered:
-                                link.connectNode1(newNode)
-                            if link.node2 == self.hovered:
-                                link.connectNode2(newNode)
-                        self.hovered.delete()
-                        self.hovered = newNode
+                    if hasattr(self.hovered, "destructibles"):
+                        self.hovered = self.hovered.replace(self.nodeType)
                 else:
                     self.linkType(node1=self.hovered, node2=self.selected, world=world)
 

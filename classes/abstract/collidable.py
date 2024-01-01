@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from time import time
 
 import pygame
 
@@ -41,14 +42,15 @@ class Collidable(ABC, Base):
         self.mass = mass
         self.momentInertia = momentInertia
         self.radius = radius
+        self.forces = []
 
     def computeCollisions(self, dt):
         for collide in self.collideWith:
             for other in self.collisionGroups[collide]:
                 pos, force = other.getContactPos(self.pos, self.radius)
                 if pos:
-                    restitution = min(self.N*self.mass, other.N*other.mass)
-                    forceSum = force*restitution*10000
+                    restitution = min(self.getRestitution(), other.getRestitution())
+                    forceSum = force*restitution*4000
 
                     vel1 = self.getVelAtPoint(pos)
                     vel2 = other.getVelAtPoint(pos)
@@ -63,11 +65,24 @@ class Collidable(ABC, Base):
                     if abs(velDiffLength) > 1:
                         friction /= 2
 
-                    forceSum -= norm * velDiff * norm * friction * 2000
+                    forceSum -= norm * velDiff * norm * friction * 1000
                     forceSum -= unit * velDiff * unit * restitution * 100
 
-                    self.applyForce(pos, forceSum, dt)
-                    other.applyForce(pos, -forceSum, dt)
+                    now = time()
+                    self.addForce(pos, forceSum, now+dt)
+                    other.addForce(pos, -forceSum, now+dt)
+
+    def addForce(self, pos, force, endTime):
+        self.forces.append({"force": force, "pos": pos, "endTime": endTime})
+
+    def update(self, dt):
+        now = time()
+        super(Collidable, self).update(dt)
+        for force in self.forces:
+            self.applyForce(force["pos"], force["force"], dt)
+            if now > force["endTime"]:
+                self.forces.remove(force)
+
 
     @abstractmethod
     def getContactPos(self, pos, radius):
@@ -80,6 +95,10 @@ class Collidable(ABC, Base):
     @abstractmethod
     def applyForce(self, pos, force, dt):
         raise NotImplementedError("Must override collide")
+
+    @abstractmethod
+    def getRestitution(self):
+        raise NotImplementedError("Must override getRestitution")
 
     def delete(self):
         if not self.deleteFlag:

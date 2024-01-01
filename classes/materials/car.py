@@ -11,7 +11,7 @@ class Car:
         self.wheel2 = TireNode(pygame.Vector2(pose.x + size.x / 2, pose.y - 0.5), world)
         self.top1 = CarNode(pygame.Vector2(pose.x - size.x / 2, pose.y - size.y - 0.5), world)
         self.top2 = CarNode(pygame.Vector2(pose.x + size.x / 2, pose.y - size.y - 0.5), world)
-        CarLink(self.wheel1, self.wheel2, world)
+        #CarLink(self.wheel1, self.wheel2, world)
         CarLink(self.top1, self.top2, world)
         CarLink(self.wheel1, self.top1, world)
         CarLink(self.wheel2, self.top2, world)
@@ -43,12 +43,12 @@ class CarNode(Node, Destructible):
 
 class TireNode(Node, Destructible):
     def __init__(self, pos, world):
-        super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=1200,
-                      radius=0.5, color="#111111", locked=False, N=0.1, mu=0.9, startDelay=0, drawGroup=4)
+        super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=500,
+                      radius=0.5, color="#111111", locked=False, N=1, mu=0.9, startDelay=0, drawGroup=4)
 
     def update(self, dt):
         super().update(dt)
-        self.torque += (80 - self.spin) * 40
+        self.torque += (16 - self.spin) * 40
 
     def draw(self, camera):
         super().draw(camera)
