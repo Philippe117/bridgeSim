@@ -12,7 +12,7 @@ class JackLink(Link, Destructible, Interactible):
 
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=6000,
-                         KP=30000, KD=5000, KI=0, friction=2, brakePoint=800000, color="#1144aa", radius=0.15,
+                         KP=1, KD=1, friction=1, brakePoint=800000, color="#1144aa", radius=0.15,
                          drawGroup=5, N=1, mu=1)
 
         self.maxLength = max(self.length, self.length * extention)
@@ -72,5 +72,5 @@ class SpringLink(Link, Destructible):
 
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=6000,
-                         KP=300, KD=10, KI=0, friction=2, brakePoint=800000, color="#ff8800", radius=0.15,
+                         KP=0.3, KD=1, friction=1, brakePoint=800000, color="#ff8800", radius=0.15,
                          drawGroup=5, N=1, mu=1)

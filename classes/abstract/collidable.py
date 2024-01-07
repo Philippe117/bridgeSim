@@ -64,10 +64,10 @@ class Collidable(ABC, Base):
                         norm = pygame.Vector2(unit.y, -unit.x)
 
                         velDiffLength = velDiff*norm
-                        if abs(velDiffLength) > 1:
+                        if abs(velDiffLength) > 10:
                             friction /= 2
 
-                        forceSum -= norm * velDiff * norm * friction * 100
+                        forceSum -= norm * velDiff * norm * friction * 800
                         forceSum -= unit * velDiff * unit * restitution * 50
 
                         now = time()

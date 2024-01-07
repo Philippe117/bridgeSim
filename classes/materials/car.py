@@ -27,7 +27,7 @@ class CarLink(Link, Destructible):
 
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=3, density=6000,
-                         KP=20000, KD=150, KI=0, friction=1, brakePoint=200000, color="#aa0000", radius=0.2,
+                         KP=1, KD=1, friction=1, brakePoint=200000, color="#aa0000", radius=0.2,
                          N=1, mu=1, drawGroup=2)
 
         self.Speed = 1

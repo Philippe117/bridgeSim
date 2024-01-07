@@ -12,7 +12,7 @@ class Link(Collidable, Updatable, Drawable):
     minLength = 0.5
 
     def __init__(self, node1: Node, node2: Node, world: object, collisionGroup=0, density=1,
-                 KP=100000, KD=10000, KI=4000, friction=2000, brakePoint=15000, color="#888888", radius=0.1,
+                 KP=1, KD=1, friction=1, brakePoint=15000, color="#888888", radius=0.1,
                  drawGroup=0, N=50, mu=10, updateGroup=0, thickness=0.2):
         pos = (node1.pos + node2.pos) / 2
         self.density = density
@@ -33,10 +33,8 @@ class Link(Collidable, Updatable, Drawable):
         self.connectNode2(node2)
         self.KP = KP
         self.KD = KD
-        self.KI = KI
         self.friction = friction
         self.brakePoint = brakePoint
-        self.i = 0
         self.load = 0
         self.color = color
 
@@ -76,17 +74,16 @@ class Link(Collidable, Updatable, Drawable):
             err = self.length - self.curLength
             velDiff = self.node2.vel - self.node1.vel
             delta = (velDiff * self.unit)*abs(err)
-            self.i += err * dt
-            self.load = err * self.KP * mass
+            self.load = err * self.KP * 50000 * mass
 
             if abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
                 self.delete()
             else:
-                self.node1.force += self.unit * (self.load + (abs(err*10)*delta * self.KD + self.i * self.KI) * mass)
-                self.node2.force -= self.unit * (self.load + (abs(err*10)*delta * self.KD + self.i * self.KI) * mass)
+                self.node1.force += self.unit * (self.load + (delta * self.KD * 1000) * mass)
+                self.node2.force -= self.unit * (self.load + (delta * self.KD * 1000) * mass)
 
-                self.node1.force += self.norm * velDiff * self.norm * self.friction
-                self.node2.force -= self.norm * velDiff * self.norm * self.friction
+                self.node1.force += self.norm * velDiff * self.norm * self.friction * mass
+                self.node2.force -= self.norm * velDiff * self.norm * self.friction * mass
 
     def updateValues(self):
         self.diff, self.length, self.unit, self.norm = getDiffLengthUnitNorm(self.node1.pos, self.node2.pos)
