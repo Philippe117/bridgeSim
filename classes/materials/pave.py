@@ -16,7 +16,7 @@ class PaveLink(Link, Destructible):
 
 class PaveNode(Node, Destructible):
     def __init__(self, pos, world):
-        super().__init__(pos, world, collisionGroup=2, collideWith=[0, 3], density=2200,
+        super().__init__(pos, world, collisionGroup=-1, collideWith=[0], density=2200,
                       radius=0.2, locked=False, color="#333333", drawGroup=9, N=1, mu=1, thickness=2)
 
     def update(self, dt):

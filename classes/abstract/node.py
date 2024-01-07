@@ -6,12 +6,13 @@ from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable
 from classes.abstract.drawable import Drawable
 from classes.abstract.linkable import Linkable
+import math
 
 
 class Node(Collidable, Updatable, Drawable, Linkable):
 
     def __init__(self, pos, world, density=1000, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
-                 collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5, thickness=0.1):
+                 collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5, thickness=0.2):
 
         self.density = density
         self.thickness = thickness
@@ -96,7 +97,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         dist = None
         diff = self.pos - pos
         if abs(diff.x) < maxDist * 2 and abs(diff.y) < maxDist * 2:
-            dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+            dist = math.dist(self.pos, pos)
         return dist
 
     def getContactPos(self, pos, radius):
@@ -120,7 +121,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         # Pourrait être mieu fait. Tenir compte du rayon
         if pos != self.pos:
             diff = self.pos - pos
-            dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+            dist = math.dist(self.pos, pos)
             unit = diff / dist
             tangent = pygame.Vector2(unit.y, -unit.x)
             vel = self.vel + self.spin * dist * tangent
@@ -133,13 +134,12 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         self.force += force
         if pos != self.pos:
             diff = self.pos - pos
-            if abs(diff.x) < 100000 and abs(diff.y) < 100000:
-                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
-                unit = diff / dist
-                norm = pygame.Vector2(unit.y, -unit.x)
+            dist = math.dist(self.pos, pos)
+            unit = diff / dist
+            norm = pygame.Vector2(unit.y, -unit.x)
 
-                spin = norm * force * dist
-                self.torque += spin
+            spin = norm * force * dist
+            self.torque += spin
 
     def replace(self, NewType):
         links = copy(self.links)

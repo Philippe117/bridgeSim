@@ -29,14 +29,14 @@ class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
         for i in range(overcompute):
             self.update(dt)
 
-    def draw(self, camera):
-        Drawer.draw(self, camera)
+    # def draw(self, camera):
+    #     Drawer.draw(self, camera)
 
     def update(self, dt):
-        overcompute = 10
+        overcompute = 5
         for i in range(overcompute):
             Updator.update(self, dt/overcompute)
-        Collidor.computeCollisions(self, dt/overcompute)
+            Collidor.computeCollisions(self, dt/overcompute)
         for destructible in self.destructibles:
             if destructible.pos.y > self.downLimit:
                 destructible.delete()

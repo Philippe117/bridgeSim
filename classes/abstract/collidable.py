@@ -5,6 +5,7 @@ import pygame
 
 from mymath import newGroups
 from classes.abstract.base import Base
+import math
 
 
 class Collidor(ABC):
@@ -50,38 +51,70 @@ class Collidable(ABC, Base):
                 pos, force = other.getContactPos(self.pos, self.radius)
                 if pos:
                     restitution = min(self.getRestitution(), other.getRestitution())
-                    forceSum = force*restitution*4000
+                    forceSum = force*restitution*1500
 
                     vel1 = self.getVelAtPoint(pos)
                     vel2 = other.getVelAtPoint(pos)
                     velDiff = vel1 - vel2
                     friction = min(self.mu*self.momentInertia, other.mu*other.momentInertia)
 
-                    forceLength = (force.x ** 2 + force.y ** 2) ** 0.5
-                    unit = force/forceLength
-                    norm = pygame.Vector2(unit.y, -unit.x)
+                    forceLength = math.hypot(force.x, force.y)
+                    if forceLength > 0:
+                        unit = force/forceLength
+                        norm = pygame.Vector2(unit.y, -unit.x)
 
-                    velDiffLength = velDiff*norm
-                    if abs(velDiffLength) > 1:
-                        friction /= 2
+                        velDiffLength = velDiff*norm
+                        if abs(velDiffLength) > 1:
+                            friction /= 2
 
-                    forceSum -= norm * velDiff * norm * friction * 1000
-                    forceSum -= unit * velDiff * unit * restitution * 100
+                        forceSum -= norm * velDiff * norm * friction * 100
+                        forceSum -= unit * velDiff * unit * restitution * 50
 
-                    now = time()
-                    self.addForce(pos, forceSum, now+dt)
-                    other.addForce(pos, -forceSum, now+dt)
+                        now = time()
+                        self.addForce(other, pos, forceSum, now+dt)
+                        #other.addForce(self, pos, -forceSum, now)
 
-    def addForce(self, pos, force, endTime):
-        self.forces.append({"force": force, "pos": pos, "endTime": endTime})
+    def addForce(self, other, pos, force, endTime):
+        self.forces.append({"force": force, "pos": pos, "endTime": endTime, "other": other})
+
+    # def update(self, dt):
+    #     now = time()
+    #     super(Collidable, self).update(dt)
+    #     for force in self.forces:
+    #         self.applyForce(force["pos"], force["force"], dt)
+    #         if now > force["endTime"]:
+    #             self.forces.remove(force)
+
+
+    # def update(self, dt):
+    #     super(Collidable, self).update(dt)
+    #     div = len(self.forces)
+    #     if div > 0:
+    #         now = time()
+    #         posSum = pygame.Vector2(0, 0)
+    #         forceSum = pygame.Vector2(0, 0)
+    #         for force in self.forces:
+    #             posSum += force["pos"]
+    #             forceSum += force["force"]
+    #             if now > force["endTime"]:
+    #                 self.forces.remove(force)
+    #         posSum /= div
+    #         forceSum /= div
+    #
+    #         self.applyForce(posSum, forceSum, dt)
+
 
     def update(self, dt):
-        now = time()
+        div = len(self.forces)
+        if div > 0:
+            now = time()
+            for force in self.forces:
+                if force["other"] != None:
+                    self.applyForce(force["pos"], force["force"]/div, dt)
+                    force["other"].applyForce(force["pos"], -force["force"]/div, dt)
+                    #if now > force["endTime"]:
+                    self.forces.remove(force)
         super(Collidable, self).update(dt)
-        for force in self.forces:
-            self.applyForce(force["pos"], force["force"], dt)
-            if now > force["endTime"]:
-                self.forces.remove(force)
 
 
     @abstractmethod

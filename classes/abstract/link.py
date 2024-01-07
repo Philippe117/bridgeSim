@@ -13,7 +13,7 @@ class Link(Collidable, Updatable, Drawable):
 
     def __init__(self, node1: Node, node2: Node, world: object, collisionGroup=0, density=1,
                  KP=100000, KD=10000, KI=4000, friction=2000, brakePoint=15000, color="#888888", radius=0.1,
-                 drawGroup=0, N=50, mu=10, updateGroup=0, thickness=0.1):
+                 drawGroup=0, N=50, mu=10, updateGroup=0, thickness=0.2):
         pos = (node1.pos + node2.pos) / 2
         self.density = density
         self.thickness = thickness
@@ -155,6 +155,11 @@ class Link(Collidable, Updatable, Drawable):
                     if dist1 < self.length and dist2 < self.length:
                         contactPos = pos + self.norm * radius * sign(diff1 * self.norm)
                         force = self.norm * (dist - (self.radius + radius)) * sign(diff1 * self.norm) * self.N
+        if not contactPos:
+            contactPos, force = self.node1.getContactPos(pos, radius)
+
+        if not contactPos:
+            contactPos, force = self.node2.getContactPos(pos, radius)
 
         return contactPos, force
 

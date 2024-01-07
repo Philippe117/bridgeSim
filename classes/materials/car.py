@@ -48,7 +48,7 @@ class TireNode(Node, Destructible):
 
     def update(self, dt):
         super().update(dt)
-        self.torque += (16 - self.spin) * 40
+        self.torque += (6 - self.spin) * 40
 
     def draw(self, camera):
         super().draw(camera)

@@ -26,7 +26,7 @@ class Building(Updatable, Drawable):
         if pos != self.pos:
             diff = self.pos - pos
             if abs(diff.x) < (maxDist)*2 and abs(diff.y) < (maxDist)*2:
-                dist = (diff.x ** 2 + diff.y ** 2) ** 0.5
+                dist = math.dist(self.pos, pos)
         return dist
 
 
