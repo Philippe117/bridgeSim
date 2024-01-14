@@ -28,7 +28,7 @@ class CarLink(Link, Destructible):
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=3, density=6000,
                          KP=1, KD=1, friction=1, brakePoint=200000, color="#aa0000", radius=0.2,
-                         N=1, mu=1, drawGroup=2)
+                         N=1, mu=1, drawGroup=2, thickness=0.5)
 
         self.Speed = 1
 
@@ -38,13 +38,13 @@ class CarLink(Link, Destructible):
 class CarNode(Node, Destructible):
     def __init__(self, pos, world):
         super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=6000,
-                         radius=0.2, color="#880000", locked=False, N=1, mu=1, startDelay=0, drawGroup=3)
+                         radius=0.2, color="#880000", locked=False, N=1, mu=1, startDelay=0, drawGroup=3, thickness=0.5)
 
 
 class TireNode(Node, Destructible):
     def __init__(self, pos, world):
         super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=500,
-                      radius=0.5, color="#111111", locked=False, N=1, mu=0.9, startDelay=0, drawGroup=4)
+                      radius=0.5, color="#111111", locked=False, N=1, mu=0.9, startDelay=0, drawGroup=4, thickness=0.5)
 
     def update(self, dt):
         super().update(dt)

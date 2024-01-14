@@ -49,6 +49,11 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         if not self.locked:
             if self.age > 0:
                 self.force += self.world.gravity * self.mass * min(1, (self.age) * 1)
+            forceLength = math.hypot(self.force.x, self.force.y)
+            maxiForce = self.mass*100
+            if forceLength > maxiForce:
+                self.force *= maxiForce/forceLength
+
             self.force -= self.vel * (self.world.friction * self.surface) * dt
             self.acc = self.force / self.mass
             self.vel += self.acc * dt

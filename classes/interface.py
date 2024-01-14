@@ -183,6 +183,9 @@ class Interface:
             pos = pygame.Vector2(-18, -0.7)
             size = pygame.Vector2(3, 1)
             Car(pos, size, world)
+        elif keys[pygame.K_q]:
+            running = False
+            print("Quitting")
         self.onsCar = keys[pygame.K_0]
 
 
@@ -192,6 +195,7 @@ class Interface:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                print("Quitting")
             elif event.type == pygame.MOUSEWHEEL:
 
                 toInteract = world.getInteractibles(mousePos)
@@ -249,7 +253,7 @@ class Interface:
                 else:
                     # self.selected.force += (mousePos + self.offsetPos - self.selected.pos) * 80000 - self.selected.vel * 1000
                     self.selected.force += (
-                                               mousePos - self.offsetPos - self.selected.pos) * self.selected.mass * 1000 - self.selected.vel * self.selected.mass * 100
+                                               mousePos - self.offsetPos - self.selected.pos) * self.selected.mass * 10000 - self.selected.vel * self.selected.mass * 1000
 
         elif self.state == "linking":
 

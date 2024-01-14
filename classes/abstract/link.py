@@ -74,13 +74,13 @@ class Link(Collidable, Updatable, Drawable):
             err = self.length - self.curLength
             velDiff = self.node2.vel - self.node1.vel
             delta = (velDiff * self.unit)*abs(err)
-            self.load = err * self.KP * 50000 * mass
+            self.load = err * self.KP * 10000 * mass
 
             if abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
                 self.delete()
             else:
-                self.node1.force += self.unit * (self.load + (delta * self.KD * 1000) * mass)
-                self.node2.force -= self.unit * (self.load + (delta * self.KD * 1000) * mass)
+                self.node1.force += self.unit * (self.load + (delta * self.KD * 8000) * mass)
+                self.node2.force -= self.unit * (self.load + (delta * self.KD * 8000) * mass)
 
                 self.node1.force += self.norm * velDiff * self.norm * self.friction * mass
                 self.node2.force -= self.norm * velDiff * self.norm * self.friction * mass

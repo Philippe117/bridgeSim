@@ -28,6 +28,7 @@ class Collidable(ABC, Base):
         mu = kwargs.get("mu")
         radius = kwargs.get("radius")
         mass = kwargs.get("mass")
+        pos = kwargs.get("mass")
         momentInertia = kwargs.get("momentInertia")
 
         if collideWith is None:
@@ -35,6 +36,7 @@ class Collidable(ABC, Base):
         if not world.collisionGroups:
             world.collisionGroups = newGroups(10)
         self.collisionGroup = world.collisionGroups[collisionGroup]
+        self.pos = pos
         self.collisionGroups = world.collisionGroups
         self.collideWith = collideWith
         self.N = N
@@ -51,7 +53,7 @@ class Collidable(ABC, Base):
                 pos, force = other.getContactPos(self.pos, self.radius)
                 if pos:
                     restitution = min(self.getRestitution(), other.getRestitution())
-                    forceSum = force*restitution*1500
+                    forceSum = force*restitution*50000
 
                     vel1 = self.getVelAtPoint(pos)
                     vel2 = other.getVelAtPoint(pos)
@@ -68,7 +70,7 @@ class Collidable(ABC, Base):
                             friction /= 2
 
                         forceSum -= norm * velDiff * norm * friction * 800
-                        forceSum -= unit * velDiff * unit * restitution * 50
+                        forceSum -= unit * velDiff * unit * restitution * 500
 
                         now = time()
                         self.addForce(other, pos, forceSum, now+dt)
@@ -90,17 +92,14 @@ class Collidable(ABC, Base):
     #     super(Collidable, self).update(dt)
     #     div = len(self.forces)
     #     if div > 0:
-    #         now = time()
     #         posSum = pygame.Vector2(0, 0)
     #         forceSum = pygame.Vector2(0, 0)
     #         for force in self.forces:
     #             posSum += force["pos"]
     #             forceSum += force["force"]
-    #             if now > force["endTime"]:
-    #                 self.forces.remove(force)
+    #         self.forces = []
     #         posSum /= div
     #         forceSum /= div
-    #
     #         self.applyForce(posSum, forceSum, dt)
 
 

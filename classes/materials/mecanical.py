@@ -13,7 +13,7 @@ class JackLink(Link, Destructible, Interactible):
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=6000,
                          KP=1, KD=1, friction=1, brakePoint=800000, color="#1144aa", radius=0.15,
-                         drawGroup=5, N=1, mu=1)
+                         drawGroup=5, N=1, mu=1, thickness=0.5)
 
         self.maxLength = max(self.length, self.length * extention)
         self.minLength = min(self.length, self.length * extention)
@@ -58,7 +58,7 @@ class JackLink(Link, Destructible, Interactible):
 class JackNode(Node, Destructible):
     def __init__(self, pos, world):
         super().__init__(pos=pos, world=world, collisionGroup=1, collideWith=[], density=6000,
-                         radius=0.2, color="#888888", drawGroup=9, N=1, mu=1)
+                         radius=0.2, color="#888888", drawGroup=9, N=1, mu=1, thickness=0.5)
 
 
 class PullerLink(JackLink):
@@ -73,4 +73,4 @@ class SpringLink(Link, Destructible):
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=6000,
                          KP=0.3, KD=1, friction=1, brakePoint=800000, color="#ff8800", radius=0.15,
-                         drawGroup=5, N=1, mu=1)
+                         drawGroup=5, N=1, mu=1, thickness=0.5)
