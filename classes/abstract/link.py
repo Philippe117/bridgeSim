@@ -11,12 +11,18 @@ class Link(Collidable, Updatable, Drawable):
     maxLength = 2
     minLength = 0.5
 
+    KP = 60000
+    KD = 8000
+    breakpoint = 1600000
+
     def __init__(self, node1: Node, node2: Node, world: object, collisionGroup=0, density=1,
                  KP=1, KD=1, friction=1, brakePoint=15000, color="#888888", radius=0.1,
-                 drawGroup=0, N=50, mu=10, updateGroup=0, thickness=0.2):
+                 drawGroup=0, N=50, mu=10, updateGroup=0, thickness=0.2, startDelay=5):
         pos = (node1.pos + node2.pos) / 2
+        self.age = -startDelay
         self.density = density
         self.thickness = thickness
+        self.world = world
         self.node1 = node1
         self.node2 = node2
         self.updateValues()
@@ -34,7 +40,7 @@ class Link(Collidable, Updatable, Drawable):
         self.KP = KP
         self.KD = KD
         self.friction = friction
-        self.brakePoint = brakePoint
+        self.breakePoint = brakePoint
         self.load = 0
         self.color = color
 
@@ -45,16 +51,16 @@ class Link(Collidable, Updatable, Drawable):
     def connectNode1(self, node):
         self.node1 = node
         self.node1.addLink(self)
-        #self.node1.mass += self.mass / 2
+        self.node1.mass += self.mass / 2
 
     def connectNode2(self, node):
         self.node2 = node
         self.node2.addLink(self)
-        #self.node2.mass += self.mass / 2
+        self.node2.mass += self.mass / 2
 
     def draw(self, camera):
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
-            pct = min(abs(self.load) / self.brakePoint, 1)
+            pct = min(abs(self.load) / (self.breakePoint * Link.breakpoint), 1)
             #        color = pygame.Color(int(pct * 255), int((1 - pct) * 255), 0)  # GN to RD
             color = pygame.Color(int(pct * 255), 0, 0)  # BK to RD
 
@@ -74,16 +80,22 @@ class Link(Collidable, Updatable, Drawable):
             err = self.length - self.curLength
             velDiff = self.node2.vel - self.node1.vel
             delta = (velDiff * self.unit)*abs(err)
-            self.load = err * self.KP * 10000 * mass
+            self.load = err * self.KP * Link.KP * mass
 
-            if abs(self.load) > self.brakePoint or not self.node1 or not self.node2:
+            if abs(self.load) > self.breakePoint*Link.breakpoint or not self.node1 or not self.node2:
                 self.delete()
             else:
-                self.node1.force += self.unit * (self.load + (delta * self.KD * 8000) * mass)
-                self.node2.force -= self.unit * (self.load + (delta * self.KD * 8000) * mass)
+                self.node1.force += self.unit * (self.load + (delta * self.KD * Link.KD) * mass)
+                self.node2.force -= self.unit * (self.load + (delta * self.KD * Link.KD) * mass)
 
                 self.node1.force += self.norm * velDiff * self.norm * self.friction * mass
                 self.node2.force -= self.norm * velDiff * self.norm * self.friction * mass
+
+                # if self.age > 0:
+                #     self.node1.force += self.mass * self.world.gravity * min(1, (self.age) * 1) / 2
+                #     self.node2.force += self.mass * self.world.gravity * min(1, (self.age) * 1) / 2
+
+        self.age += dt
 
     def updateValues(self):
         self.diff, self.length, self.unit, self.norm = getDiffLengthUnitNorm(self.node1.pos, self.node2.pos)
@@ -93,17 +105,17 @@ class Link(Collidable, Updatable, Drawable):
         if not self.deleteFlag:
             super().delete()
             if self in self.node1.links:
-                # if self.node1.mass > 0:
-                #     self.node1.mass -= self.mass / 2
-                # else:
-                #     raise ValueError(str(self.mass) + ":" + str(self.node1.mass))
+                if self.node1.mass > 0:
+                    self.node1.mass -= self.mass / 2
+                else:
+                    raise ValueError(str(self.mass) + ":" + str(self.node1.mass))
                 self.node1.links.remove(self)
 
             if self in self.node2.links:
-                # if self.node2.mass > 0:
-                #     self.node2.mass -= self.mass / 2
-                # else:
-                #     raise ValueError(str(self.mass) + ":" + str(self.node2.mass))
+                if self.node2.mass > 0:
+                    self.node2.mass -= self.mass / 2
+                else:
+                    raise ValueError(str(self.mass) + ":" + str(self.node2.mass))
                 self.node2.links.remove(self)
 
     def getDistance(self, pos, maxDist=10):

@@ -9,7 +9,7 @@ class WoodLink(Link, Destructible):
 
     def __init__(self, node1, node2, world):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=500,
-                         KP=1, KD=1, friction=1, brakePoint=50000, color="#BA8E4A", radius=0.15,
+                         KP=1, KD=1, friction=1, brakePoint=1, color="#BA8E4A", radius=0.15,
                          drawGroup=7, N=1, mu=1, thickness=0.5)
 
 class WoodNode(Node, Destructible):

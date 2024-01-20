@@ -12,7 +12,7 @@ class JackLink(Link, Destructible, Interactible):
 
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=6000,
-                         KP=1, KD=1, friction=1, brakePoint=800000, color="#1144aa", radius=0.15,
+                         KP=1, KD=1, friction=1, brakePoint=1, color="#1144aa", radius=0.15,
                          drawGroup=5, N=1, mu=1, thickness=0.5)
 
         self.maxLength = max(self.length, self.length * extention)
@@ -29,7 +29,7 @@ class JackLink(Link, Destructible, Interactible):
 
     def draw(self, camera):
         super().draw(camera)
-        pct = min(abs(self.load) / self.brakePoint, 1)
+        pct = min(abs(self.load) / (self.breakePoint * Link.breakpoint), 1)
         #        color = pygame.Color(int(pct * 255), int((1 - pct) * 255), 0)  # GN to RD
         color = pygame.Color(int(pct * 255), 0, 0)  # BK to RD
 
@@ -72,5 +72,5 @@ class SpringLink(Link, Destructible):
 
     def __init__(self, node1, node2, world, extention=1.5):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=6000,
-                         KP=0.3, KD=1, friction=1, brakePoint=800000, color="#ff8800", radius=0.15,
+                         KP=0.01, KD=0.001, friction=1, brakePoint=1, color="#ff8800", radius=0.15,
                          drawGroup=5, N=1, mu=1, thickness=0.5)

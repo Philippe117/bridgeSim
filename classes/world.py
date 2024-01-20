@@ -25,7 +25,7 @@ class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
 
     def start(self, dt, camera):
         # settle physic (Undestructible)
-        overcompute = 2
+        overcompute = 1
         for i in range(overcompute):
             self.update(dt)
 

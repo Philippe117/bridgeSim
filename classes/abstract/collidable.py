@@ -19,6 +19,11 @@ class Collidor(ABC):
 
 
 class Collidable(ABC, Base):
+    restitution = 50000
+    friction =1400
+    absorbsion = 500
+
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         world = kwargs.get("world")
@@ -53,7 +58,7 @@ class Collidable(ABC, Base):
                 pos, force = other.getContactPos(self.pos, self.radius)
                 if pos:
                     restitution = min(self.getRestitution(), other.getRestitution())
-                    forceSum = force*restitution*50000
+                    forceSum = force*restitution*Collidable.restitution
 
                     vel1 = self.getVelAtPoint(pos)
                     vel2 = other.getVelAtPoint(pos)
@@ -69,8 +74,8 @@ class Collidable(ABC, Base):
                         if abs(velDiffLength) > 10:
                             friction /= 2
 
-                        forceSum -= norm * velDiff * norm * friction * 800
-                        forceSum -= unit * velDiff * unit * restitution * 500
+                        forceSum -= norm * velDiff * norm * friction * Collidable.friction
+                        forceSum -= unit * velDiff * unit * restitution * Collidable.absorbsion
 
                         now = time()
                         self.addForce(other, pos, forceSum, now+dt)

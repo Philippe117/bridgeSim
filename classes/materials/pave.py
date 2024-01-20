@@ -9,7 +9,7 @@ class PaveLink(Link, Destructible):
 
     def __init__(self, node1, node2, world):
         super().__init__(node1=node1, node2=node2, world=world, collisionGroup=2, density=1600,
-                         KP=1, KD=1, friction=1, brakePoint=80000,
+                         KP=1, KD=1, friction=1, brakePoint=1,
                          color="#222222", radius=0.2, drawGroup=5, N=1, mu=1, thickness=2)
 
 

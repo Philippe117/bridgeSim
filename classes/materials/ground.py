@@ -8,7 +8,7 @@ class GroundLink(Link):
 
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=0, density=2000,
-                         KP=1, KD=1, friction=1, brakePoint=2000, color="#004411", radius=0.2,
+                         KP=1, KD=1, friction=1, brakePoint=1, color="#004411", radius=0.2,
                          drawGroup=0, N=1, mu=1)
 
 
