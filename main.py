@@ -3,11 +3,17 @@ import pygame
 from classes.world import World
 from classes.camera import Camera
 from classes.interface import Interface
-from levels.river import config
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+pygame.display.set_caption('Bridging sim')
+# Setting a custom icon for the game window
+icon = pygame.image.load('ressources/pickup.png')
+pygame.display.set_icon(icon)
+
+flags = pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE
+screen = pygame.display.set_mode((0, 0), flags)
 clock = pygame.time.Clock()
 running = True
 
@@ -15,6 +21,7 @@ running = True
 
 
 camera = Camera(screen, pygame.Vector2(1, 1), 50)
+from levels.river import config
 world = World(pygame.Vector2(0, 9.81), config)
 interface = Interface(camera)
 

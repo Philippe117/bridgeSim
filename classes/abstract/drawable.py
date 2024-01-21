@@ -17,9 +17,11 @@ class Drawable(ABC, Base):
         super().__init__(**kwargs)
         world = kwargs.get("world")
         drawGroup = kwargs.get("drawGroup")
-
-        self.drawGroup = world.drawGroups[drawGroup]
-        self.drawGroup.append(self)
+        if len(world.drawGroups) > drawGroup >= 0:
+            self.drawGroup = world.drawGroups[drawGroup]
+            self.drawGroup.append(self)
+        else:
+            self.drawGroup = False
 
     @abstractmethod
     def draw(self, camera):
@@ -27,5 +29,5 @@ class Drawable(ABC, Base):
 
     def delete(self):
         super().delete()
-        if self in self.drawGroup:
+        if self.drawGroup and self in self.drawGroup:
             self.drawGroup.remove(self)

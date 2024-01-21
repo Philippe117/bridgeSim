@@ -12,7 +12,7 @@ import math
 class Node(Collidable, Updatable, Drawable, Linkable):
 
     def __init__(self, pos, world, density=1000, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
-                 collideWith=None, drawGroup=0, updateGroup=0, N=10, mu=1, startDelay=5, thickness=0.2):
+                 collideWith=None, drawGroup=-1, updateGroup=0, N=10, mu=1, startDelay=5, thickness=0.2):
 
         self.density = density
         self.thickness = thickness

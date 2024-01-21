@@ -1,8 +1,10 @@
 from classes.abstract.link import Link
 from classes.abstract.node import Node
 import pygame
-from math import cos, sin
+from math import cos, sin, atan2
 from classes.abstract.destructible import Destructible
+from classes.abstract.drawable import Drawable
+from classes.abstract.updatable import Updatable
 
 
 class Car:
@@ -11,47 +13,66 @@ class Car:
         self.wheel2 = TireNode(pygame.Vector2(pose.x + size.x / 2.2, pose.y - 0.5), world)
         self.top1 = CarNode(pygame.Vector2(pose.x - size.x / 2, pose.y - size.y - 0.5), world)
         self.top2 = CarNode(pygame.Vector2(pose.x + size.x / 2, pose.y - size.y - 0.5), world)
-        #CarLink(self.wheel1, self.wheel2, world)
-        CarLink(self.top1, self.top2, world)
         CarSuspention(self.wheel1, self.top1, world)
         CarSuspention(self.wheel2, self.top2, world)
         CarSuspention(self.wheel1, self.top2, world)
         CarSuspention(self.wheel2, self.top1, world)
+        CarSuspention(self.wheel1, self.wheel2, world)
+        CarLink(self.top1, self.top2, world)
 
-        pos = (self.wheel1.pos + self.wheel2.pos) / 2
+        self.pos = (self.top1.pos + self.top2.pos) / 2
 
 
 class CarLink(Link, Destructible):
     maxLength = 2
     minLength = 0.5
+
+    image = pygame.image.load("ressources/pickup.png")
+    rect = image.get_rect()
+    rect.center = image.get_rect().w/2, image.get_rect().h/2
+
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=3, density=6000,
-                         KP=1, KD=1, friction=1, brakePoint=1, color="#aa0000", radius=0.6,
+                         KP=0.1, KD=0.1, friction=1, brakePoint=1, color="#aa0000", radius=0.3,
                          N=1, mu=1, drawGroup=2, thickness=0.5)
+        self.image = CarLink.image.convert_alpha()
+
+    def draw(self, camera):
+        #super().draw(camera)
+
+        angle = -atan2(self.diff.y, self.diff.x)*180/3.14159
+        image2 = pygame.transform.rotate(
+            pygame.transform.smoothscale(self.image, [self.length * camera.zoom * 1.4, 2 * camera.zoom]), angle)
+        rect = image2.get_rect()
+        rect.center = camera.posToScreen(self.pos)
+
+        # camera.screen.blit(image2, camera.posToScreen(self.pos+(-2.2*self.unit+1*self.norm)))
+        camera.screen.blit(image2, rect)
+
 
 class CarSuspention(Link, Destructible):
     maxLength = 1
     minLength = 0.5
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=3, density=6000,
-                         KP=0.03, KD=0.01, friction=1, brakePoint=1, color="#666666", radius=0.1,
+                         KP=0.004, KD=0.01, friction=1, brakePoint=1, color="#666666", radius=0.1,
                          N=1, mu=1, drawGroup=1, thickness=0.5)
 
 
 class CarNode(Node, Destructible):
     def __init__(self, pos, world):
         super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=6000,
-                         radius=0.6, color="#880000", locked=False, N=1, mu=1, startDelay=0, drawGroup=3, thickness=0.5)
+                         radius=0.3, color="#880000", locked=False, N=1, mu=1, startDelay=0, drawGroup=-1, thickness=0.3)
 
 
 class TireNode(Node, Destructible):
     def __init__(self, pos, world):
         super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=500,
-                      radius=0.5, color="#111111", locked=False, N=1, mu=0.9, startDelay=0, drawGroup=4, thickness=0.5)
+                      radius=0.5, color="#111111", locked=False, N=0.5, mu=1, startDelay=0, drawGroup=2, thickness=0.5)
 
     def update(self, dt):
         super().update(dt)
-        self.torque += (6 - self.spin) * 800
+        self.torque += (12 - self.spin) * 2200
 
     def draw(self, camera):
         super().draw(camera)
