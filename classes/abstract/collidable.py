@@ -19,9 +19,9 @@ class Collidor(ABC):
 
 
 class Collidable(ABC, Base):
-    restitution = 50000
-    friction =1400
-    absorbsion = 500
+    restitution = 8000
+    friction = 300
+    absorbsion = 300
 
 
     def __init__(self, **kwargs):
@@ -116,8 +116,8 @@ class Collidable(ABC, Base):
                 if force["other"] != None:
                     self.applyForce(force["pos"], force["force"]/div, dt)
                     force["other"].applyForce(force["pos"], -force["force"]/div, dt)
-                    #if now > force["endTime"]:
-                    self.forces.remove(force)
+                    if now > force["endTime"]:
+                        self.forces.remove(force)
         super(Collidable, self).update(dt)
 
 

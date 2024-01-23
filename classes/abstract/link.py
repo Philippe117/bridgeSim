@@ -12,13 +12,14 @@ class Link(Collidable, Updatable, Drawable):
     maxLength = 2
     minLength = 0.5
 
-    KP = 60000
-    KD = 6000
+    KP = 40000
+    KD = 4000
+    Friction = 1
     breakpoint = 800000
 
     def __init__(self, node1: Node, node2: Node, world: object, collisionGroup=0, density=1,
-                 KP=1, KD=1, friction=1, brakePoint=15000, color="#888888", radius=0.1,
-                 drawGroup=0, N=50, mu=10, updateGroup=0, thickness=0.2, startDelay=5):
+                 KP=1, KD=1, friction=1, brakePoint=1, color="#888888", radius=0.1,
+                 drawGroup=0, N=1, mu=1, updateGroup=0, thickness=0.2, startDelay=5):
         pos = (node1.pos + node2.pos) / 2
         self.age = -startDelay
         self.density = density
@@ -104,8 +105,8 @@ class Link(Collidable, Updatable, Drawable):
                 self.node1.force += self.unit * (self.load + (delta * self.KD * Link.KD) * mass)
                 self.node2.force -= self.unit * (self.load + (delta * self.KD * Link.KD) * mass)
 
-                self.node1.force += self.norm * velDiff * self.norm * self.friction * mass
-                self.node2.force -= self.norm * velDiff * self.norm * self.friction * mass
+                self.node1.force += self.norm * velDiff * self.norm * self.friction * Link.Friction * mass
+                self.node2.force -= self.norm * velDiff * self.norm * self.friction * Link.Friction * mass
 
                 # if self.age > 0:
                 #     self.node1.force += self.mass * self.world.gravity * min(1, (self.age) * 1) / 2
