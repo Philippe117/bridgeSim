@@ -7,6 +7,8 @@ from classes.abstract.updatable import Updatable
 from classes.abstract.drawable import Drawable
 from classes.abstract.linkable import Linkable
 import math
+from myGL import drawCircle, drawLine, drawDisk, setColorHex
+from OpenGL.GL import *
 
 
 class Node(Collidable, Updatable, Drawable, Linkable):
@@ -69,18 +71,22 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         pos = camera.posToScreen(self.pos)
 
         # Dessine le node
-        pygame.draw.circle(camera.screen, self.color, pos, self.radius * camera.zoom * 1.1)
-        pygame.draw.circle(camera.screen, "#000000", pos, self.radius * camera.zoom * 1.1, 2)
+        setColorHex(self.color)
+        drawDisk(pos, self.radius*camera.zoom, 16)
+        setColorHex("#000000")
+        drawCircle(pos, self.radius*camera.zoom, 16, 2)
+
         X1 = pygame.Vector2(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
         X2 = pygame.Vector2(X1.y, -X1.x)
-        pygame.draw.line(camera.screen, "#000000", pos - X1, pos + X1)
-        pygame.draw.line(camera.screen, "#000000", pos - X2, pos + X2)
+        drawLine(pos - X1, pos + X1, 2)
+        drawLine(pos - X2, pos + X2, 2)
 
-        # Dessine l'age'
-        if self.age < 0:
-            font = pygame.font.SysFont("silomttf", 24)
-            img = font.render(str(int(-self.age)) + "s", True, "#000000")
-            camera.screen.blit(img, pos + pygame.Vector2(20, -20))
+        #
+        # # Dessine l'age'
+        # if self.age < 0:
+        #     font = pygame.font.SysFont("silomttf", 24)
+        #     img = font.render(str(int(-self.age)) + "s", True, "#000000")
+        #     camera.screen.blit(img, pos + pygame.Vector2(20, -20))
         #
         # # Dessine la masse
         # font = pygame.font.SysFont("silomttf", 24)

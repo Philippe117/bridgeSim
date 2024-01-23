@@ -5,6 +5,8 @@ from math import cos, sin, atan2
 from classes.abstract.destructible import Destructible
 from classes.abstract.drawable import Drawable
 from classes.abstract.updatable import Updatable
+from myGL import loadImage, drawImage
+from OpenGL.GL import *
 
 
 class Car:
@@ -27,27 +29,23 @@ class CarLink(Link, Destructible):
     maxLength = 2
     minLength = 0.5
 
-    image = pygame.image.load("ressources/pickup.png")
-    rect = image.get_rect()
-    rect.center = image.get_rect().w/2, image.get_rect().h/2
 
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=3, density=6000,
                          KP=0.1, KD=0.1, friction=1, brakePoint=1, color="#aa0000", radius=0.3,
                          N=1, mu=1, drawGroup=2, thickness=0.5)
-        self.image = CarLink.image.convert_alpha()
+        #self.image = CarLink.image.convert_alpha()
+
+        self.image = loadImage("ressources/pickup.png")
 
     def draw(self, camera):
-        #super().draw(camera)
+        # super().draw(camera)
 
         angle = -atan2(self.diff.y, self.diff.x)*180/3.14159
-        image2 = pygame.transform.rotate(
-            pygame.transform.smoothscale(self.image, [self.length * camera.zoom * 1.4, 2 * camera.zoom]), angle)
-        rect = image2.get_rect()
-        rect.center = camera.posToScreen(self.pos)
+        pos = camera.posToScreen(self.pos)
 
-        # camera.screen.blit(image2, camera.posToScreen(self.pos+(-2.2*self.unit+1*self.norm)))
-        camera.screen.blit(image2, rect)
+        glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
+        drawImage(self.image, pos, pygame.Vector2(self.length * camera.zoom * 1.4, 2 * camera.zoom), angle)
 
 
 class CarSuspention(Link, Destructible):
@@ -76,14 +74,14 @@ class TireNode(Node, Destructible):
 
     def draw(self, camera):
         super().draw(camera)
-
-        pos = camera.posToScreen(self.pos)
-
-        # Dessine le node
-        pygame.draw.circle(camera.screen, "#444444", pos, self.radius * camera.zoom * 0.7)
-        pygame.draw.circle(camera.screen, "#000000", pos, self.radius * camera.zoom * 0.7, 2)
-        X1 = pygame.Vector2(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
-        X2 = pygame.Vector2(X1.y, -X1.x)
-        pygame.draw.line(camera.screen, "#000000", pos - X1, pos + X1)
-        pygame.draw.line(camera.screen, "#000000", pos - X2, pos + X2)
+        #
+        # pos = camera.posToScreen(self.pos)
+        #
+        # # Dessine le node
+        # pygame.draw.circle(camera.screen, "#444444", pos, self.radius * camera.zoom * 0.7)
+        # pygame.draw.circle(camera.screen, "#000000", pos, self.radius * camera.zoom * 0.7, 2)
+        # X1 = pygame.Vector2(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
+        # X2 = pygame.Vector2(X1.y, -X1.x)
+        # pygame.draw.line(camera.screen, "#000000", pos - X1, pos + X1)
+        # pygame.draw.line(camera.screen, "#000000", pos - X2, pos + X2)
 

@@ -5,7 +5,8 @@ from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable
 from classes.abstract.drawable import Drawable
 from classes.abstract.node import Node
-
+from OpenGL.GL import glBegin, GL_QUADS, glVertex2f, glEnd, GL_LINE_LOOP, glColor3f, glLineWidth
+from myGL import setColorHex
 
 class Link(Collidable, Updatable, Drawable):
     maxLength = 2
@@ -61,16 +62,31 @@ class Link(Collidable, Updatable, Drawable):
     def draw(self, camera):
         if abs(self.diff.x) < 100000 and abs(self.diff.y) < 100000:
             pct = min(abs(self.load) / (self.breakePoint * Link.breakpoint), 1)
-            #        color = pygame.Color(int(pct * 255), int((1 - pct) * 255), 0)  # GN to RD
-            color = pygame.Color(int(pct * 255), 0, 0)  # BK to RD
 
             pos1 = camera.posToScreen(self.node1.pos + self.norm * self.radius)
             pos2 = camera.posToScreen(self.node2.pos + self.norm * self.radius)
             pos3 = camera.posToScreen(self.node2.pos - self.norm * self.radius)
             pos4 = camera.posToScreen(self.node1.pos - self.norm * self.radius)
 
-            pygame.draw.polygon(camera.screen, self.color, [pos1, pos2, pos3, pos4])
-            pygame.draw.polygon(camera.screen, color, [pos1, pos2, pos3, pos4], 2)
+            #glColor3f(self.color[0], self.color.g, self.color.b)
+            setColorHex(self.color)
+            glBegin(GL_QUADS)
+            glVertex2f(pos1.x, pos1.y)
+            glVertex2f(pos2.x, pos2.y)
+            glVertex2f(pos3.x, pos3.y)
+            glVertex2f(pos4.x, pos4.y)
+            glEnd()
+
+            glColor3f(pct, 0, 0)
+            glLineWidth(2)
+            glBegin(GL_LINE_LOOP)
+            glVertex2f(pos1.x, pos1.y)
+            glVertex2f(pos2.x, pos2.y)
+            glVertex2f(pos3.x, pos3.y)
+            glVertex2f(pos4.x, pos4.y)
+            glEnd()
+
+
 
     def update(self, dt):
         super(Link, self).update(dt)

@@ -3,6 +3,8 @@ import pygame
 from classes.world import World
 from classes.camera import Camera
 from classes.interface import Interface
+from OpenGL.GL import glClearColor, glOrtho, glClear, GL_COLOR_BUFFER_BIT
+from myGL import hexToColor
 
 # pygame setup
 pygame.init()
@@ -12,12 +14,15 @@ pygame.display.set_caption('Bridging sim')
 icon = pygame.image.load('ressources/pickup.png')
 pygame.display.set_icon(icon)
 
-flags = pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE
-screen = pygame.display.set_mode((0, 0), flags)
+# Définition de la taille de la fenêtre
+width, height = 1600, 900
+screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF | pygame.OPENGL)
+
 clock = pygame.time.Clock()
 running = True
 
-
+# Initialisation de OpenGL
+glOrtho(0, width, height, 0, -1, 1)
 
 
 camera = Camera(screen, pygame.Vector2(1, 1), 50)
@@ -28,13 +33,17 @@ interface = Interface(camera)
 fps = 60
 world.start(1 / fps, camera)
 
+backgroundColor = hexToColor("#115577")
+glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 1)
+
 while running:
 
 
     running = interface.update(world, camera, running)
     world.update(1 / fps)
 
-    screen.fill("#115577")
+    # screen.fill("#115577")
+    glClear(GL_COLOR_BUFFER_BIT)
     world.draw(camera)
     interface.draw(camera)
 

@@ -41,6 +41,14 @@ class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
             if destructible.pos.y > self.downLimit:
                 destructible.delete()
 
+    # def draw(self, camera):
+    #     super().draw(camera)
+    #
+    #     # Position initiale du carré
+    #     glColor3f(1, 0, 0)
+    #     drawSquare(camera.posToScreen(pygame.Vector2(0, 0)), 1*camera.zoom)
+    #     glColor3f(1, 1, 0)
+    #     drawCircle(camera.posToScreen(pygame.Vector2(2, 0)), 1*camera.zoom, num_segments=6)
 
     # Retourne une liste des nodes en ordre de distance
     # return [{"node": node, "dist": dist},..]
