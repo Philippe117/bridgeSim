@@ -64,7 +64,6 @@ def drawCircle(pos, radius, num_segments=100, width=-1):
 
 def loadImage(imagePath):
     # Chargement de l'image PNG
-    imagePath = "ressources/pickup.png"
     imageSurface = pygame.image.load(imagePath)
     imageData = pygame.image.tostring(imageSurface, "RGBA", 1)
 
@@ -86,7 +85,7 @@ def drawImage(image, pos, size, angle=0):
 
     glPushMatrix()
     glTranslatef(pos.x, pos.y, 0.0)
-    glRotatef(-angle, 0.0, 0.0, 1.0)  # Appliquer la rotation autour de l'axe Z
+    glRotatef(angle*180/3.14159, 0.0, 0.0, 1.0)  # Appliquer la rotation autour de l'axe Z
     glTranslatef(- 0.5 * size.x, - 0.5 * size.y, 0.0)
 
     glBegin(GL_QUADS)
