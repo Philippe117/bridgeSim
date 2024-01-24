@@ -55,6 +55,11 @@ class Node(Collidable, Updatable, Drawable, Linkable):
             maxiForce = self.mass*100
             if forceLength > maxiForce:
                 self.force *= maxiForce/forceLength
+            if self.torque > self.momentInertia*100:
+                self.torque = self.momentInertia*100
+            elif self.torque < -self.momentInertia*100:
+                self.torque = -self.momentInertia*100
+
 
             self.force -= self.vel * (self.world.friction * self.surface) * dt
             self.acc = self.force / self.mass

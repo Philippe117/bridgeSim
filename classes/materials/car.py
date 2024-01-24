@@ -31,7 +31,7 @@ class CarLink(Link, Destructible):
     pickupImage = None
 
     def __init__(self, node1, node2, world):
-        super().__init__(node1, node2, world, collisionGroup=3, density=6000,
+        super().__init__(node1, node2, world, collisionGroup=-1, density=6000,
                          KP=0.1, KD=0.1, friction=1, brakePoint=1, color="#aa0000", radius=0.3,
                          N=1, mu=1, drawGroup=2, thickness=0.5)
 
@@ -75,7 +75,7 @@ class TireNode(Node, Destructible):
 
     def update(self, dt):
         super().update(dt)
-        self.torque += (12 - self.spin) * 2200
+        self.torque += (3 - self.spin) * 2200
 
     def draw(self, camera):
         super().draw(camera)

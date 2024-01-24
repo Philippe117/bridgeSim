@@ -20,7 +20,7 @@ class Collidor(ABC):
 
 class Collidable(ABC, Base):
     restitution = 8000
-    friction = 300
+    friction = 2000
     absorbsion = 300
 
 
