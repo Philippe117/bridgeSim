@@ -4,6 +4,8 @@ from classes.materials.steel import *
 from classes.materials.car import *
 from classes.materials.mecanical import *
 from copy import copy
+from myGL import drawCircle, drawLine
+from OpenGL.GL import *
 
 
 def connexionCheck(me, node):
@@ -290,28 +292,30 @@ class Interface:
 
 
         # Affiche la selection
-        img = self.font.render("hovered: " + str(self.hovered), True, "#000000")
-        camera.screen.blit(img, pygame.Vector2(10, 10))
-
-        img = self.font.render("selected: " + str(self.selected), True, "#000000")
-        camera.screen.blit(img, pygame.Vector2(10, 30))
-
-        img = self.font.render("LinkTool: " + str(self.linkType), True, "#000000")
-        camera.screen.blit(img, pygame.Vector2(10, 50))
-        img = self.font.render("NodeTool: " + str(self.nodeType), True, "#000000")
-        camera.screen.blit(img, pygame.Vector2(10, 70))
+        # img = self.font.render("hovered: " + str(self.hovered), True, "#000000")
+        # camera.screen.blit(img, pygame.Vector2(10, 10))
+        #
+        # img = self.font.render("selected: " + str(self.selected), True, "#000000")
+        # camera.screen.blit(img, pygame.Vector2(10, 30))
+        #
+        # img = self.font.render("LinkTool: " + str(self.linkType), True, "#000000")
+        # camera.screen.blit(img, pygame.Vector2(10, 50))
+        # img = self.font.render("NodeTool: " + str(self.nodeType), True, "#000000")
+        # camera.screen.blit(img, pygame.Vector2(10, 70))
 
         if self.state == "idle":
             if self.allowAddNode:
                 # Dessine les liens possibles
                 for node in self.linkables:
                     pos = camera.posToScreen(node.pos)
-                    pygame.draw.line(camera.screen, "#ff8800", pos, mousePos)
+                    glColor3f(1, 0.5, 0)
+                    drawLine(pos, mousePos, 2)
 
         elif self.state == "dragging":
             if self.selected:
                 pos = camera.posToScreen(self.selected.pos)
-                pygame.draw.line(camera.screen, "#ffffff", pos, mousePos)
+                glColor3f(1, 1, 1)
+                drawLine(pos, mousePos, 2)
             else:
                 self.state = "idle"
 
@@ -319,9 +323,10 @@ class Interface:
             if self.selected:
                 pos = camera.posToScreen(self.selected.pos)
                 ghostPos = camera.posToScreen(self.ghostNodePos)
-                pygame.draw.circle(camera.screen, "#ffffff", pos, self.linkType.maxLength * camera.zoom, 1)
-                pygame.draw.circle(camera.screen, "#ffffff", ghostPos, 0.2 * camera.zoom, 1)
-                pygame.draw.line(camera.screen, "#ffffff", pos, mousePos)
+                glColor3f(1, 1, 1)
+                drawCircle(pos, self.linkType.maxLength * camera.zoom, 15, 2)
+                drawCircle(ghostPos, 0.2 * camera.zoom, 15, 2)
+                drawLine(pos, mousePos, 2)
             else:
                 self.state = "idle"
 
