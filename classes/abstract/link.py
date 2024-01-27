@@ -12,8 +12,8 @@ class Link(Collidable, Updatable, Drawable):
     maxLength = 2
     minLength = 0.5
 
-    KP = 40000
-    KD = 4000
+    KP = 30000
+    KD = 3000
     Friction = 1
     breakpoint = 800000
 
