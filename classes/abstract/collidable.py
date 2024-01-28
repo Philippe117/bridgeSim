@@ -52,7 +52,6 @@ class Collidable(ABC, Base):
         self.forces = []
 
     def computeCollisions(self, dt):
-        # Utiliser des variables locales pour accéder plus rapidement aux attributs
         pos_self, radius_self = self.pos, self.radius
         get_restitution_self = self.getRestitution
         get_vel_at_point_self = self.getVelAtPoint
@@ -60,15 +59,12 @@ class Collidable(ABC, Base):
 
         for collide in self.collideWith:
             for other in self.collisionGroups[collide]:
-                # Utiliser des variables locales pour accéder plus rapidement aux attributs de l'autre objet
                 get_restitution_other = other.getRestitution
                 get_vel_at_point_other = other.getVelAtPoint
                 mu_other, moment_inertia_other = other.mu, other.momentInertia
 
-                # Utiliser une seule opération de récupération de position et de force
-                pos, force = other.getContactPos(pos_self, radius_self)  # Modification ici
+                pos, force = other.getContactPos(pos_self, radius_self)
                 if pos:
-                    # Optimiser les appels de fonction
                     restitution = min(get_restitution_self(), get_restitution_other())
                     force_sum = force * restitution * Collidable.restitution
 
@@ -83,19 +79,18 @@ class Collidable(ABC, Base):
                         norm = pygame.Vector2(unit.y, -unit.x)
 
                         vel_diff_length = vel_diff * norm
-                        # Optimiser l'opération abs
                         if abs(vel_diff_length) > 10:
                             friction /= 2
 
-                        # Utiliser des opérations vectorielles pour améliorer la lisibilité et la performance
                         friction_force = norm * (vel_diff * norm) * (friction * Collidable.friction)
                         restitution_force = unit * (vel_diff * unit) * (restitution * Collidable.absorbsion)
 
                         force_sum -= friction_force + restitution_force
 
-                        # Utiliser une opération vectorielle pour appliquer la force
+                        # Utilisation d'une opération vectorielle pour appliquer la force
                         self.applyForce(pos, force_sum, dt)
                         other.applyForce(pos, -force_sum, dt)
+
 
     def addForce(self, other, pos, force, endTime):
         self.forces.append({"force": force, "pos": pos, "endTime": endTime, "other": other})

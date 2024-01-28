@@ -125,8 +125,14 @@ class Link(Collidable, Updatable, Drawable):
 
         x_min, x_max = min(self.node1.pos.x, self.node2.pos.x), max(self.node1.pos.x, self.node2.pos.x)
         y_min, y_max = min(self.node1.pos.y, self.node2.pos.y), max(self.node1.pos.y, self.node2.pos.y)
+        if x_max + maxDist <= pos.x <= x_min - maxDist or y_max + maxDist <= pos.y <= y_min - maxDist:
+            return None
 
-        if x_min - maxDist <= pos.x <= x_max + maxDist and y_min - maxDist <= pos.y <= y_max + maxDist:
+        diff1 = self.node1.pos - pos
+        diff2 = self.node2.pos - pos
+        dist1 = abs(diff1 * self.unit)
+        dist2 = abs(diff2 * self.unit)
+        if dist1 < self.length and dist2 < self.length:
             diff_to_line = abs((self.node2.pos.y - self.node1.pos.y) * pos.x -
                                (self.node2.pos.x - self.node1.pos.x) * pos.y +
                                self.node2.pos.x * self.node1.pos.y -
