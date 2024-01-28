@@ -1,5 +1,4 @@
 # Example file showing a basic pygame "game loop"
-import pygame
 from mymath import getDiffLengthUnitNorm
 from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable

@@ -1,14 +1,13 @@
 # Example file showing a basic pygame "game loop"
-import pygame
+from pygame import Vector2 as Vec
 from copy import copy
 from math import cos, sin
 from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable
 from classes.abstract.drawable import Drawable
 from classes.abstract.linkable import Linkable
-import math
 from myGL import drawCircle, drawLine, drawDisk, setColorHex
-from OpenGL.GL import *
+import math
 
 
 class Node(Collidable, Updatable, Drawable, Linkable):
@@ -31,9 +30,9 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         self.age = -startDelay
         self.links = []
         self.world = world
-        self.vel = pygame.Vector2(0, 0)  # m/s
-        self.acc = pygame.Vector2(0, 0)  # m/s^2
-        self.force = pygame.Vector2(0, 0)  #
+        self.vel = Vec(0, 0)  # m/s
+        self.acc = Vec(0, 0)  # m/s^2
+        self.force = Vec(0, 0)  #
         self.pos = pos
         self.color = color
         self.spin = 0  # rad/s
@@ -51,15 +50,12 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         if not self.locked:
             if self.age > 0:
                 self.force += self.world.gravity * self.mass * min(1, (self.age) * 1)
-            forceLength = math.hypot(self.force.x, self.force.y)
-            maxiForce = self.mass*200
-            if forceLength > maxiForce:
-                self.force *= maxiForce/forceLength
-            if self.torque > self.momentInertia*100:
-                self.torque = self.momentInertia*100
-            elif self.torque < -self.momentInertia*100:
-                self.torque = -self.momentInertia*100
+            maxiForce = self.mass*300
+            maxiTorque = self.momentInertia*100
 
+            if self.force.length() > 0:
+                self.force.clamp_magnitude_ip(maxiForce)
+            self.torque = min(max(self.torque, -maxiTorque), maxiTorque)
 
             self.force -= self.vel * (self.world.friction * self.surface) * dt
             self.acc = self.force / self.mass
@@ -68,7 +64,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
             self.spin += self.torque / self.momentInertia * dt
             self.angle += self.spin * dt
 
-        self.force = pygame.Vector2(0, 0)
+        self.force = Vec(0, 0)
         self.torque = 0
         self.age += dt
 
@@ -81,26 +77,11 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         setColorHex("#000000")
         drawCircle(pos, self.radius*camera.zoom, 16, 2)
 
-        X1 = pygame.Vector2(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
-        X2 = pygame.Vector2(X1.y, -X1.x)
+        X1 = Vec(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
+        X2 = Vec(X1.y, -X1.x)
         drawLine(pos - X1, pos + X1, 2)
         drawLine(pos - X2, pos + X2, 2)
 
-        #
-        # # Dessine l'age'
-        # if self.age < 0:
-        #     font = pygame.font.SysFont("silomttf", 24)
-        #     img = font.render(str(int(-self.age)) + "s", True, "#000000")
-        #     camera.screen.blit(img, pos + pygame.Vector2(20, -20))
-        #
-        # # Dessine la masse
-        # font = pygame.font.SysFont("silomttf", 24)
-        # img = font.render(str(self.mass), True, "#000000")
-        # camera.screen.blit(img, pos)
-
-    # def delete(self):
-    #    for link in self.links:
-    #         link.delete = True
 
     def delete(self):
         if not self.deleteFlag:
@@ -113,7 +94,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         dist = None
         diff = self.pos - pos
         if abs(diff.x) < maxDist * 2 and abs(diff.y) < maxDist * 2:
-            dist = math.dist(self.pos, pos)
+            dist = self.pos.distance_to(pos)
         return dist
 
     def getContactPos(self, pos, radius):
@@ -130,17 +111,15 @@ class Node(Collidable, Updatable, Drawable, Linkable):
                     force = unit * (dist - maxDist) * self.N
             else:
                 contactPos = pos
-                force = pygame.Vector2(0, 0)
+                force = Vec(0, 0)
         return contactPos, force
 
     def getVelAtPoint(self, pos):
-        # Pourrait être mieu fait. Tenir compte du rayon
         if pos != self.pos:
-            diff = self.pos - pos
-            dist = math.dist(self.pos, pos)
-            unit = diff / dist
-            tangent = pygame.Vector2(unit.y, -unit.x)
-            vel = self.vel + self.spin * dist * tangent
+            dist = self.pos.distance_to(pos)
+            unit = (self.pos-pos).normalize()
+            norm = Vec(unit.y, -unit.x)
+            vel = self.vel + self.spin * dist * norm
             return vel
         else:
             return self.vel
@@ -149,13 +128,12 @@ class Node(Collidable, Updatable, Drawable, Linkable):
 
         self.force += force
         if pos != self.pos:
-            diff = self.pos - pos
-            dist = math.dist(self.pos, pos)
-            unit = diff / dist
-            norm = pygame.Vector2(unit.y, -unit.x)
-
+            dist = self.pos.distance_to(pos)
+            unit = (self.pos-pos).normalize()
+            norm = Vec(unit.y, -unit.x)
             spin = norm * force * dist
             self.torque += spin
+
 
     def replace(self, NewType):
         links = copy(self.links)
