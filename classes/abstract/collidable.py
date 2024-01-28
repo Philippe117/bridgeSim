@@ -23,7 +23,6 @@ class Collidable(ABC, Base):
     friction = 1000
     absorbsion = 100
 
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         world = kwargs.get("world")
@@ -33,7 +32,7 @@ class Collidable(ABC, Base):
         mu = kwargs.get("mu")
         radius = kwargs.get("radius")
         mass = kwargs.get("mass")
-        pos = kwargs.get("mass")
+        pos = kwargs.get("pos")
         momentInertia = kwargs.get("momentInertia")
 
         if collideWith is None:
@@ -53,73 +52,53 @@ class Collidable(ABC, Base):
         self.forces = []
 
     def computeCollisions(self, dt):
+        # Utiliser des variables locales pour accéder plus rapidement aux attributs
+        pos_self, radius_self = self.pos, self.radius
+        get_restitution_self = self.getRestitution
+        get_vel_at_point_self = self.getVelAtPoint
+        mu_self, moment_inertia_self = self.mu, self.momentInertia
+
         for collide in self.collideWith:
             for other in self.collisionGroups[collide]:
-                pos, force = other.getContactPos(self.pos, self.radius)
+                # Utiliser des variables locales pour accéder plus rapidement aux attributs de l'autre objet
+                get_restitution_other = other.getRestitution
+                get_vel_at_point_other = other.getVelAtPoint
+                mu_other, moment_inertia_other = other.mu, other.momentInertia
+
+                # Utiliser une seule opération de récupération de position et de force
+                pos, force = other.getContactPos(pos_self, radius_self)  # Modification ici
                 if pos:
-                    restitution = min(self.getRestitution(), other.getRestitution())
-                    forceSum = force*restitution*Collidable.restitution
+                    # Optimiser les appels de fonction
+                    restitution = min(get_restitution_self(), get_restitution_other())
+                    force_sum = force * restitution * Collidable.restitution
 
-                    vel1 = self.getVelAtPoint(pos)
-                    vel2 = other.getVelAtPoint(pos)
-                    velDiff = vel1 - vel2
-                    friction = min(self.mu*self.momentInertia, other.mu*other.momentInertia)
+                    vel1 = get_vel_at_point_self(pos)
+                    vel2 = get_vel_at_point_other(pos)
+                    vel_diff = vel1 - vel2
+                    friction = min(mu_self * moment_inertia_self, mu_other * moment_inertia_other)
 
-                    forceLength = math.hypot(force.x, force.y)
-                    if forceLength > 0:
-                        unit = force/forceLength
+                    force_length = force.length()
+                    if force_length > 0:
+                        unit = force / force_length
                         norm = pygame.Vector2(unit.y, -unit.x)
 
-                        velDiffLength = velDiff*norm
-                        if abs(velDiffLength) > 10:
+                        vel_diff_length = vel_diff * norm
+                        # Optimiser l'opération abs
+                        if abs(vel_diff_length) > 10:
                             friction /= 2
 
-                        forceSum -= norm * velDiff * norm * friction * Collidable.friction
-                        forceSum -= unit * velDiff * unit * restitution * Collidable.absorbsion
+                        # Utiliser des opérations vectorielles pour améliorer la lisibilité et la performance
+                        friction_force = norm * (vel_diff * norm) * (friction * Collidable.friction)
+                        restitution_force = unit * (vel_diff * unit) * (restitution * Collidable.absorbsion)
 
-                        now = time()
-                        self.addForce(other, pos, forceSum, now+dt)
-                        #other.addForce(self, pos, -forceSum, now)
+                        force_sum -= friction_force + restitution_force
+
+                        # Utiliser une opération vectorielle pour appliquer la force
+                        self.applyForce(pos, force_sum, dt)
+                        other.applyForce(pos, -force_sum, dt)
 
     def addForce(self, other, pos, force, endTime):
         self.forces.append({"force": force, "pos": pos, "endTime": endTime, "other": other})
-
-    # def update(self, dt):
-    #     now = time()
-    #     super(Collidable, self).update(dt)
-    #     for force in self.forces:
-    #         self.applyForce(force["pos"], force["force"], dt)
-    #         if now > force["endTime"]:
-    #             self.forces.remove(force)
-
-
-    # def update(self, dt):
-    #     super(Collidable, self).update(dt)
-    #     div = len(self.forces)
-    #     if div > 0:
-    #         posSum = pygame.Vector2(0, 0)
-    #         forceSum = pygame.Vector2(0, 0)
-    #         for force in self.forces:
-    #             posSum += force["pos"]
-    #             forceSum += force["force"]
-    #         self.forces = []
-    #         posSum /= div
-    #         forceSum /= div
-    #         self.applyForce(posSum, forceSum, dt)
-
-
-    def update(self, dt):
-        div = len(self.forces)
-        if div > 0:
-            #now = time()
-            for force in self.forces:
-                if force["other"] != None:
-                    self.applyForce(force["pos"], force["force"], dt)
-                    #force["other"].applyForce(force["pos"], -force["force"], dt)
-                    #if now > force["endTime"]:
-                    self.forces.remove(force)
-        super(Collidable, self).update(dt)
-
 
     @abstractmethod
     def getContactPos(self, pos, radius):

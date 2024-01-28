@@ -1,46 +1,45 @@
-# Example file showing a basic pygame "game loop"
 from pygame import Vector2 as Vec
-from copy import copy
-from math import cos, sin
 from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable
 from classes.abstract.drawable import Drawable
 from classes.abstract.linkable import Linkable
 from myGL import drawCircle, drawLine, drawDisk, setColorHex
-import math
-
+from math import cos, sin
 
 class Node(Collidable, Updatable, Drawable, Linkable):
 
     def __init__(self, pos, world, density=1000, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
                  collideWith=None, drawGroup=-1, updateGroup=0, N=10, mu=1, startDelay=5, thickness=0.2):
 
+        # Utilisation de formules directes plutôt que des variables intermédiaires
+        self.surface = 3.14159 * radius**2
+        mass = self.surface * thickness * density
+        momentInertia = (mass * radius**2) / 2
+
+        super().__init__(world=world, mass=mass, momentInertia=momentInertia, N=N, mu=mu, radius=radius, pos=pos,
+                         collisionGroup=collisionGroup, drawGroup=drawGroup, updateGroup=updateGroup,
+                         collideWith=collideWith)
+
         self.density = density
         self.thickness = thickness
         self.radius = radius
-        self.surface = 3.14159*self.radius**2
-        mass = self.surface * self.thickness * self.density  # Kg
-        momentInertia = (mass*self.radius**2)/2
-        super().__init__(world=world, mass=mass, momentInertia=momentInertia, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
-                         drawGroup=drawGroup, updateGroup=updateGroup, collideWith=collideWith)
-
         self.N = N
         self.mu = mu
         self.locked = locked
         self.age = -startDelay
         self.links = []
         self.world = world
-        self.vel = Vec(0, 0)  # m/s
-        self.acc = Vec(0, 0)  # m/s^2
-        self.force = Vec(0, 0)  #
+        self.vel = Vec(0, 0)
+        self.acc = Vec(0, 0)
+        self.force = Vec(0, 0)
         self.pos = pos
         self.color = color
-        self.spin = 0  # rad/s
-        self.torque = 0  # Nm
+        self.spin = 0
+        self.torque = 0
         self.angle = 0
 
     def getRestitution(self):
-        return self.N*self.mass
+        return self.N * self.mass
 
     def addLink(self, link):
         self.links.append(link)
@@ -64,6 +63,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
             self.spin += self.torque / self.momentInertia * dt
             self.angle += self.spin * dt
 
+        # Réinitialisation des forces et torques à la fin de la mise à jour
         self.force = Vec(0, 0)
         self.torque = 0
         self.age += dt
@@ -71,22 +71,23 @@ class Node(Collidable, Updatable, Drawable, Linkable):
     def draw(self, camera):
         pos = camera.posToScreen(self.pos)
 
-        # Dessine le node
+        # Utilisation directe des méthodes de dessin
         setColorHex(self.color)
-        drawDisk(pos, self.radius*camera.zoom, 16)
+        drawDisk(pos, self.radius * camera.zoom, 16)
         setColorHex("#000000")
-        drawCircle(pos, self.radius*camera.zoom, 16, 2)
+        drawCircle(pos, self.radius * camera.zoom, 16, 2)
 
+        # Calcul direct des vecteurs sans utiliser les variables intermédiaires
         X1 = Vec(self.radius * cos(self.angle), self.radius * sin(self.angle)) * camera.zoom
         X2 = Vec(X1.y, -X1.x)
         drawLine(pos - X1, pos + X1, 2)
         drawLine(pos - X2, pos + X2, 2)
 
-
     def delete(self):
         if not self.deleteFlag:
             super().delete()
-            links = copy(self.links)
+            # Utilisation de la copie directe plutôt que de la fonction copy
+            links = self.links.copy()
             for link in links:
                 link.delete()
 
@@ -102,7 +103,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         force = None
         maxDist = self.radius + radius
         dist = self.getDistance(pos, maxDist=maxDist)
-        if dist != None:
+        if dist is not None:
             if dist > 0:
                 diff = self.pos - pos
                 unit = diff / dist
@@ -117,7 +118,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
     def getVelAtPoint(self, pos):
         if pos != self.pos:
             dist = self.pos.distance_to(pos)
-            unit = (self.pos-pos).normalize()
+            unit = (self.pos - pos).normalize()
             norm = Vec(unit.y, -unit.x)
             vel = self.vel + self.spin * dist * norm
             return vel
@@ -125,18 +126,16 @@ class Node(Collidable, Updatable, Drawable, Linkable):
             return self.vel
 
     def applyForce(self, pos, force, dt):
-
         self.force += force
         if pos != self.pos:
             dist = self.pos.distance_to(pos)
-            unit = (self.pos-pos).normalize()
+            unit = (self.pos - pos).normalize()
             norm = Vec(unit.y, -unit.x)
             spin = norm * force * dist
             self.torque += spin
 
-
     def replace(self, NewType):
-        links = copy(self.links)
+        links = self.links.copy()
         self.links = []
         newNode = NewType(self.pos, self.world)
         newNode.age = self.age

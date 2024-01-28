@@ -1,4 +1,3 @@
-# Example file showing a basic pygame "game loop"
 from mymath import getDiffLengthUnitNorm
 from classes.abstract.collidable import Collidable
 from classes.abstract.updatable import Updatable
@@ -10,7 +9,6 @@ from myGL import setColorHex
 class Link(Collidable, Updatable, Drawable):
     maxLength = 2
     minLength = 0.5
-
     KP = 30000
     KD = 3000
     Friction = 1
@@ -28,14 +26,12 @@ class Link(Collidable, Updatable, Drawable):
         self.node2 = node2
         self.updateValues()
         mass = self.density * self.length * radius * 2 * self.thickness
-        momentInertia = mass/12*self.length
-        super().__init__(world=world, mass=mass, momentInertia=momentInertia, N=N, mu=mu, radius=radius, pos=pos, collisionGroup=collisionGroup,
-                         drawGroup=drawGroup, updateGroup=updateGroup, collideWith=[])
-
+        momentInertia = mass / 12 * self.length
+        super().__init__(world=world, mass=mass, momentInertia=momentInertia, N=N, mu=mu, radius=radius, pos=pos,
+                         collisionGroup=collisionGroup, drawGroup=drawGroup, updateGroup=updateGroup, collideWith=[])
         self.radius = radius
         self.curLength = self.length
         self.pos = pos
-
         self.connectNode1(node1)
         self.connectNode2(node2)
         self.KP = KP
@@ -46,8 +42,7 @@ class Link(Collidable, Updatable, Drawable):
         self.color = color
 
     def getRestitution(self):
-        return self.N*self.mass
-        # return self.N*(self.node1.mass + self.node2.mass + self.mass)
+        return self.N * self.mass
 
     def connectNode1(self, node):
         self.node1 = node
@@ -86,8 +81,6 @@ class Link(Collidable, Updatable, Drawable):
             glVertex2f(pos4.x, pos4.y)
             glEnd()
 
-
-
     def update(self, dt):
         super(Link, self).update(dt)
         self.updateValues()
@@ -95,21 +88,19 @@ class Link(Collidable, Updatable, Drawable):
             mass = min(self.node1.mass, self.node2.mass)
             err = self.length - self.curLength
             velDiff = self.node2.vel - self.node1.vel
-            delta = (velDiff * self.unit)*abs(err)
+            delta = (velDiff * self.unit) * abs(err)
             self.load = err * self.KP * Link.KP * mass
 
-            if abs(self.load) > self.breakePoint*Link.breakpoint or not self.node1 or not self.node2:
+            if abs(self.load) > self.breakePoint * Link.breakpoint or not self.node1 or not self.node2:
                 self.delete()
             else:
-                self.node1.force += self.unit * (self.load + (delta * self.KD * Link.KD) * mass)
-                self.node2.force -= self.unit * (self.load + (delta * self.KD * Link.KD) * mass)
+                kd_factor = delta * self.KD * Link.KD * mass
+                self.node1.force += self.unit * (self.load + kd_factor)
+                self.node2.force -= self.unit * (self.load + kd_factor)
 
-                self.node1.force += self.norm * velDiff * self.norm * self.friction * Link.Friction * mass
-                self.node2.force -= self.norm * velDiff * self.norm * self.friction * Link.Friction * mass
-
-                # if self.age > 0:
-                #     self.node1.force += self.mass * self.world.gravity * min(1, (self.age) * 1) / 2
-                #     self.node2.force += self.mass * self.world.gravity * min(1, (self.age) * 1) / 2
+                friction_force = velDiff * self.norm * self.friction * Link.Friction * mass
+                self.node1.force += self.norm * friction_force
+                self.node2.force -= self.norm * friction_force
 
         self.age += dt
 
@@ -120,66 +111,53 @@ class Link(Collidable, Updatable, Drawable):
     def delete(self):
         if not self.deleteFlag:
             super().delete()
-            if self in self.node1.links:
-                if self.node1.mass > 0:
-                    self.node1.mass -= self.mass / 2
-                else:
-                    raise ValueError(str(self.mass) + ":" + str(self.node1.mass))
-                self.node1.links.remove(self)
-
-            if self in self.node2.links:
-                if self.node2.mass > 0:
-                    self.node2.mass -= self.mass / 2
-                else:
-                    raise ValueError(str(self.mass) + ":" + str(self.node2.mass))
-                self.node2.links.remove(self)
+            for node in [self.node1, self.node2]:
+                if self in node.links:
+                    if node.mass > 0:
+                        node.mass -= self.mass / 2
+                    else:
+                        raise ValueError(str(self.mass) + ":" + str(node.mass))
+                    node.links.remove(self)
 
     def getDistance(self, pos, maxDist=10):
-        dist = None
-        if pos != self.node1.pos and pos != self.node1.pos:
+        if pos in (self.node1.pos, self.node2.pos):
+            return None
 
-            if (max(self.node1.pos.x, self.node2.pos.x) + maxDist) > pos.x > (
-                min(self.node1.pos.x, self.node2.pos.x) - maxDist) \
-                and (max(self.node1.pos.y, self.node2.pos.y) + maxDist) > pos.y > (
-                min(self.node1.pos.y, self.node2.pos.y) - maxDist):
+        x_min, x_max = min(self.node1.pos.x, self.node2.pos.x), max(self.node1.pos.x, self.node2.pos.x)
+        y_min, y_max = min(self.node1.pos.y, self.node2.pos.y), max(self.node1.pos.y, self.node2.pos.y)
 
-                # Calcul de la distance
-                diff1 = self.node1.pos - pos
-                diff2 = self.node2.pos - pos
-                dist1 = abs(diff1 * self.unit)
-                dist2 = abs(diff2 * self.unit)
-                if dist1 < self.length and dist2 < self.length:
-                    c = -(self.norm.x * self.node1.pos.x + self.norm.y * self.node1.pos.y)
+        if x_min - maxDist <= pos.x <= x_max + maxDist and y_min - maxDist <= pos.y <= y_max + maxDist:
+            diff_to_line = abs((self.node2.pos.y - self.node1.pos.y) * pos.x -
+                               (self.node2.pos.x - self.node1.pos.x) * pos.y +
+                               self.node2.pos.x * self.node1.pos.y -
+                               self.node2.pos.y * self.node1.pos.x) / self.length
+            return diff_to_line if 0 <= diff_to_line <= self.length else None
 
-                    # Calcul de la distance entre le point et la droite
-                    dist = abs(self.norm.x * pos.x + self.norm.y * pos.y + c) / (
-                            self.norm.x ** 2 + self.norm.y ** 2) ** 0.5
-
-        return dist
+        return None
 
     def getContactPos(self, pos, radius):
         contactPos = None
         force = None
-        if pos != self.node1.pos and pos != self.node1.pos:
 
-            maxDist = radius + self.radius
+        if pos in (self.node1.pos, self.node2.pos):
+            return None, None
 
-            if (max(self.node1.pos.x, self.node2.pos.x) + radius + self.radius) > pos.x > (
-                min(self.node1.pos.x, self.node2.pos.x) - radius - self.radius) \
-                and (max(self.node1.pos.y, self.node2.pos.y) + radius + self.radius) > pos.y > (
-                min(self.node1.pos.y, self.node2.pos.y) - radius - self.radius):
+        max_dist_condition_x = max(self.node1.pos.x, self.node2.pos.x) + radius + self.radius
+        min_dist_condition_x = min(self.node1.pos.x, self.node2.pos.x) - radius - self.radius
+        max_dist_condition_y = max(self.node1.pos.y, self.node2.pos.y) + radius + self.radius
+        min_dist_condition_y = min(self.node1.pos.y, self.node2.pos.y) - radius - self.radius
 
-                # Calcul de la distance entre le point et la droite
-                dist = self.getDistance(pos, maxDist=maxDist)
-                if dist and abs(dist) < self.radius + radius:
-                    # Calcul de la distance
-                    diff1 = self.node1.pos - pos
-                    diff2 = self.node2.pos - pos
-                    dist1 = abs(diff1 * self.unit)
-                    dist2 = abs(diff2 * self.unit)
-                    if dist1 < self.length and dist2 < self.length:
-                        contactPos = pos + self.norm * radius * sign(diff1 * self.norm)
-                        force = self.norm * (dist - (self.radius + radius)) * sign(diff1 * self.norm) * self.N
+        if min_dist_condition_x < pos.x < max_dist_condition_x and min_dist_condition_y < pos.y < max_dist_condition_y:
+            dist = self.getDistance(pos, maxDist=radius + self.radius)
+
+            if dist and abs(dist) < self.radius + radius:
+                diff1 = self.node1.pos - pos
+                dist1 = abs(diff1 * self.unit)
+
+                if dist1 < self.length:
+                    contactPos = pos + self.norm * radius * sign(diff1 * self.norm)
+                    force = self.norm * (dist - (self.radius + radius)) * sign(diff1 * self.norm) * self.N
+
         if not contactPos:
             contactPos, force = self.node1.getContactPos(pos, radius)
 
@@ -188,16 +166,16 @@ class Link(Collidable, Updatable, Drawable):
 
         return contactPos, force
 
+    def sign(num):
+        return -1 if num < 0 else 1
+
     def getVelAtPoint(self, pos):
         # Pourrait être mieu fait. Tenir compte du rayon
         diff1 = self.node1.pos - pos
         diff2 = self.node2.pos - pos
-        diff21 = self.node2.pos - self.node1.pos
-        length = (diff21.x ** 2 + diff21.y ** 2) ** 0.5
-        unit = diff21 / length
-        dist1 = abs(diff1 * unit)
-        dist2 = abs(diff2 * unit)
-        vel = (self.node1.vel * dist2 + self.node2.vel * dist1) / length
+        dist1 = abs(diff1 * self.unit)
+        dist2 = abs(diff2 * self.unit)
+        vel = (self.node1.vel * dist2 + self.node2.vel * dist1) / self.length
         return vel
 
     def applyForce(self, pos, force, dt):
