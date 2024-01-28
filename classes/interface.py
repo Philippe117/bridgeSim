@@ -1,7 +1,7 @@
 from classes.materials.wood import *
 from classes.materials.pave import *
 from classes.materials.steel import *
-from classes.materials.car import *
+from classes.cars import *
 from classes.materials.mecanical import *
 from copy import copy
 from myGL import drawCircle, drawLine
@@ -183,8 +183,7 @@ class Interface:
             pass
         elif keys[pygame.K_0] and not self.onsCar:
             pos = pygame.Vector2(-18, -0.7)
-            size = pygame.Vector2(4, 0.8)
-            Car(pos, size, world)
+            Car(pos, world)
         elif keys[pygame.K_q]:
             running = False
             print("Quitting")

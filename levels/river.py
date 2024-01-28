@@ -23,7 +23,7 @@ def config(self):
     GroundNode(pygame.Vector2(5, 2), self)
     GroundNode(pygame.Vector2(7, 0), self)
 
-    #Garage(pygame.Vector2(-18, -0.5), self)
+    Garage(pygame.Vector2(-18, -0.5), self)
 
 
     nodeA, nodeB = node2, PaveNode(pygame.Vector2(-3, 0), self)

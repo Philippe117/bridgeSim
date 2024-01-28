@@ -20,7 +20,7 @@ class Collidor(ABC):
 
 class Collidable(ABC, Base):
     restitution = 2000
-    friction = 1000
+    friction = 2000
     absorbsion = 100
 
     def __init__(self, **kwargs):
