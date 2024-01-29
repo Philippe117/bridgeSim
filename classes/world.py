@@ -21,7 +21,7 @@ class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
         self.friction = 10000
         self.level = level
         self.level(self)
-        self.downLimit = 20
+        self.downLimit = -20
 
     def start(self, dt, camera):
         # settle physic (Undestructible)
@@ -42,7 +42,7 @@ class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
             Collidor.computeCollisions(self, dt/overcompute)
         #Collidor.computeCollisions(self, dt)
         for destructible in self.destructibles:
-            if destructible.pos.y > self.downLimit:
+            if destructible.pos.y < self.downLimit:
                 destructible.delete()
 
     # def draw(self, camera):

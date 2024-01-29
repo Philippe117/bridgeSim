@@ -8,7 +8,7 @@ class SteelLink(Link, Destructible):
     minLength = 0.5
 
     def __init__(self, node1, node2, world):
-        super().__init__(node1=node1, node2=node2, world=world, collisionGroup=1, density=800,
+        super().__init__(node1=node1, node2=node2, world=world, collisionGroup=-1, density=800,
                          KP=1, KD=1, friction=1, brakePoint=1, color="#883333", radius=0.1,
                          drawGroup=7, N=1, mu=1, thickness=0.5)
 

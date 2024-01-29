@@ -15,11 +15,11 @@ class Camera(Updatable):
 
     def posToScreen(self, pos: Vec):
         pos2 = (pos - self.pos) * self.zoom + self.screenDim
-        pos2.y = self.screenDim.y-pos2.y
+        pos2.y = self.screen.get_height()-pos2.y
         return pos2
 
     def screenToPos(self, pos: Vec):
-        return (Vec(pos.x, self.screenDim.y-pos.y) - self.screenDim) / self.zoom + self.pos
+        return (Vec(pos.x, self.screen.get_height()-pos.y) - self.screenDim) / self.zoom + self.pos
 
     def zoomInOut(self, pos, zoom):
         self.zoom *= 1+zoom

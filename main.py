@@ -11,7 +11,7 @@ pygame.init()
 
 pygame.display.set_caption('Bridging sim')
 # Setting a custom icon for the game window
-icon = pygame.image.load('ressources/pickup.png')
+icon = pygame.image.load('ressources/tire.png')
 pygame.display.set_icon(icon)
 
 # Définition de la taille de la fenêtre
@@ -27,7 +27,7 @@ glOrtho(0, width, height, 0, -1, 1)
 
 from levels.river import config
 world = World(pygame.Vector2(0, -9.81), config)
-camera = Camera(world, screen, pygame.Vector2(1, 1), 50)
+camera = Camera(world, screen, pygame.Vector2(0, 0), 50)
 interface = Interface(camera)
 
 fps = 60

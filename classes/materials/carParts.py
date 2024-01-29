@@ -43,7 +43,7 @@ class CarSuspention(Link, Destructible):
 
 class CarNode(Node, Destructible):
     def __init__(self, pos, world):
-        super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[], density=6000,
+        super().__init__(pos=pos, world=world, collisionGroup=-1, collideWith=[], density=6000,
                          radius=0.3, color="#880000", locked=False, N=1, mu=1, startDelay=0, drawGroup=-1, thickness=0.3)
 
 

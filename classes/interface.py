@@ -182,7 +182,7 @@ class Interface:
         elif keys[pygame.K_9]:
             pass
         elif keys[pygame.K_0] and not self.onsCar:
-            pos = pygame.Vector2(-18, -0.7)
+            pos = pygame.Vector2(-18, 0.7)
             Car(pos, world)
         elif keys[pygame.K_q]:
             running = False
@@ -204,11 +204,8 @@ class Interface:
                     for interactible in toInteract:
                         interactible.sclollAction(event.y)
                 else:
-
                     # Zoom
                     camera.zoomInOut(mousePos, event.y * 0.1)
-                    # camera.zoom *= 1 + event.y * 0.1
-                    # camera.pos += (mousePos - camera.pos) * (event.y * 0.1)
 
         # Obtention de l'état de la sourie
         left, middle, right = pygame.mouse.get_pressed()
