@@ -31,7 +31,7 @@ class Garage(Building):
     def draw(self, camera):
 
         glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
-        drawImage(Garage.image, camera.posToScreen(self.pos+Vec(0, -3.5)), Vec(6, 4)*2*camera.zoom, 0)
+        drawImage(Garage.image, camera.posToScreen(self.pos+Vec(0, 3.5)), Vec(6, 4)*2*camera.zoom, 0)
 
     def delete(self):
         if not self.deleteFlag:

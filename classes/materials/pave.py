@@ -4,7 +4,7 @@ from classes.abstract.destructible import Destructible
 
 
 class PaveLink(Link, Destructible):
-    maxLength = 2
+    maxLength = 3
     minLength = 0.5
 
     def __init__(self, node1, node2, world):

@@ -4,7 +4,7 @@ from classes.abstract.destructible import Destructible
 
 
 class SteelLink(Link, Destructible):
-    maxLength = 4
+    maxLength = 5
     minLength = 0.5
 
     def __init__(self, node1, node2, world):

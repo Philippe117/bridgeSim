@@ -9,7 +9,7 @@ from classes.abstract.linkable import Linker
 
 
 class World(Updator, Collidor, Drawer, Interactor, Destructor, Linker):
-    def __init__(self, gravity=pygame.Vector2(0, 9.81), level=None):
+    def __init__(self, gravity=pygame.Vector2(0, -9.81), level=None):
         Updator.__init__(self, 10)
         Drawer.__init__(self, 10)
         Collidor.__init__(self, 10)

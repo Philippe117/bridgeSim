@@ -1,16 +1,26 @@
-import pygame
+from pygame import Vector2 as Vec
+from classes.abstract.updatable import Updatable
 
 
-class Camera:
-    def __init__(self, screen, pos=pygame.Vector2(0, 0), zoom=1):
+class Camera(Updatable):
+    def __init__(self, world, screen, pos=Vec(0, 0), zoom=1):
+        super().__init__(world=world, updateGroup=1)
         self.zoom = zoom
         self.pos = pos
         self.screen = screen
+        self.update(0.01)
 
-    def posToScreen(self, pos: object):
-        screenDim = pygame.Vector2(self.screen.get_width(), self.screen.get_height())
-        return (pos - self.pos) * self.zoom + screenDim / 2
+    def update(self, dt):
+        self.screenDim = Vec(self.screen.get_width(), self.screen.get_height())/2
 
-    def screenToPos(self, pos: object):
-        screenDim = pygame.Vector2(self.screen.get_width(), self.screen.get_height())
-        return (pos - screenDim / 2) / self.zoom + self.pos
+    def posToScreen(self, pos: Vec):
+        pos2 = (pos - self.pos) * self.zoom + self.screenDim
+        pos2.y = self.screenDim.y-pos2.y
+        return pos2
+
+    def screenToPos(self, pos: Vec):
+        return (Vec(pos.x, self.screenDim.y-pos.y) - self.screenDim) / self.zoom + self.pos
+
+    def zoomInOut(self, pos, zoom):
+        self.zoom *= 1+zoom
+        self.pos += (pos-self.pos)*(1-1/(1+zoom))

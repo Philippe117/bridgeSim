@@ -25,7 +25,7 @@ class CarLink(Link, Destructible):
     def draw(self, camera):
         # super().draw(camera)
 
-        angle = atan2(self.diff.y, self.diff.x)
+        angle = -atan2(self.diff.y, self.diff.x)
         pos = camera.posToScreen(self.pos)
 
         glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
@@ -60,6 +60,6 @@ class TireNode(Node, Destructible):
     def draw(self, camera):
         # super().draw(camera)
         glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
-        drawImage(TireNode.tireImage, camera.posToScreen(self.pos), pygame.Vector2(self.radius, self.radius)*2*camera.zoom, self.angle)
+        drawImage(TireNode.tireImage, camera.posToScreen(self.pos), pygame.Vector2(self.radius, self.radius)*2*camera.zoom, -self.angle)
 
 

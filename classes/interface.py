@@ -152,7 +152,7 @@ class Interface:
             pass
 
     def update(self, world, camera, running):
-        mousePos = self.camera.screenToPos(pygame.mouse.get_pos())
+        mousePos = self.camera.screenToPos(Vec(pygame.mouse.get_pos()))
         mousePos.x = round(mousePos.x*self.gridResolution, 0)/self.gridResolution
         mousePos.y = round(mousePos.y*self.gridResolution, 0)/self.gridResolution
 
@@ -206,8 +206,9 @@ class Interface:
                 else:
 
                     # Zoom
-                    camera.zoom *= 1 + event.y * 0.1
-                    camera.pos += (mousePos - camera.pos) * (event.y * 0.1)
+                    camera.zoomInOut(mousePos, event.y * 0.1)
+                    # camera.zoom *= 1 + event.y * 0.1
+                    # camera.pos += (mousePos - camera.pos) * (event.y * 0.1)
 
         # Obtention de l'état de la sourie
         left, middle, right = pygame.mouse.get_pressed()
@@ -284,7 +285,7 @@ class Interface:
 
     def draw(self, camera):
 
-        mousePos = camera.screenToPos(pygame.mouse.get_pos())
+        mousePos = camera.screenToPos(Vec(pygame.mouse.get_pos()))
         mousePos.x = round(mousePos.x*self.gridResolution, 0)/self.gridResolution
         mousePos.y = round(mousePos.y*self.gridResolution, 0)/self.gridResolution
         mousePos = camera.posToScreen(mousePos)

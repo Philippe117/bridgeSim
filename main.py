@@ -25,9 +25,9 @@ running = True
 glOrtho(0, width, height, 0, -1, 1)
 
 
-camera = Camera(screen, pygame.Vector2(1, 1), 50)
 from levels.river import config
-world = World(pygame.Vector2(0, 9.81), config)
+world = World(pygame.Vector2(0, -9.81), config)
+camera = Camera(world, screen, pygame.Vector2(1, 1), 50)
 interface = Interface(camera)
 
 fps = 60
