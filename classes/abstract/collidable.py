@@ -39,13 +39,16 @@ class Collidable(ABC, Base):
             collideWith = []
         if not world.collisionGroups:
             world.collisionGroups = newGroups(10)
-        self.collisionGroup = world.collisionGroups[collisionGroup]
+        if collisionGroup >= 0:
+            self.collisionGroup = world.collisionGroups[collisionGroup]
+            self.collisionGroup.append(self)
+        else:
+            self.collisionGroup = None
         self.pos = pos
         self.collisionGroups = world.collisionGroups
         self.collideWith = collideWith
         self.N = N
         self.mu = mu
-        self.collisionGroup.append(self)
         self.mass = mass
         self.momentInertia = momentInertia
         self.radius = radius
@@ -114,5 +117,5 @@ class Collidable(ABC, Base):
     def delete(self):
         if not self.deleteFlag:
             super().delete()
-            if self in self.collisionGroup:
+            if self.collisionGroup and self in self.collisionGroup:
                 self.collisionGroup.remove(self)

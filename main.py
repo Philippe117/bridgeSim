@@ -35,9 +35,10 @@ world.start(1 / fps, camera)
 
 backgroundColor = hexToColor("#115577")
 glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 1)
-
+fpsAvg = 0
+i = 0
 while running:
-
+    i = (i+1)%50
 
     running = interface.update(world, camera, running)
     world.update(1 / fps)
@@ -50,6 +51,8 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.flip()
     clock.tick(fps)  # limits FPS to 60
-    print("Framerate:", clock.get_fps())
+    fpsAvg += (clock.get_fps()-fpsAvg)*0.01
+    if i==0:
+        print("Framerate:", fpsAvg)
 
 pygame.quit()
