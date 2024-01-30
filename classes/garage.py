@@ -1,6 +1,6 @@
 from classes.abstract.building import Building
 from time import time
-from classes.cars import Car
+from classes.cars import Pickup
 from pygame import Vector2 as Vec
 from myGL import loadImage, drawImage
 from OpenGL.GL import *
@@ -25,7 +25,7 @@ class Garage(Building):
     def update(self, dt):
         curTime = time()
         if curTime > self.NextCarTime:
-            Car(self.pos, self.world)
+            Pickup(self.pos, self.world)
             self.NextCarTime = curTime+self.delay
 
     def draw(self, camera):

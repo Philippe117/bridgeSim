@@ -42,5 +42,5 @@ class Car(Updatable):
 
 class Pickup(Car):
     def __init__(self, pose, world):
-        super().__init__(pose, Vec(4, 0.8), world, body="ressources/pickup.png", wheels="ressources/tire.png")
+        super().__init__(pose, world, 3, 4200, Vec(4, 0.8), body="ressources/pickup.png", wheels="ressources/tire.png")
 
