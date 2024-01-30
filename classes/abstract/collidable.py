@@ -68,6 +68,7 @@ class Collidable(ABC, Base):
                     if abs(slip) > 10:
                         friction /= 2
 
+
                     frictionForce = norm * slip * (friction * Collidable.friction)
                     absorbForce = unit * velDiff * unit * (1*Collidable.absorbsion)
                     squishForce = squish * (restitution * Collidable.restitution)
