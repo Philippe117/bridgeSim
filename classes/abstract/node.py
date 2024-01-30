@@ -125,14 +125,9 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         else:
             return self.vel
 
-    def applyForce(self, pos, force, dt):
+    def applyForceTorque(self, force, torque):
         self.force += force
-        if pos != self.pos:
-            dist = self.pos.distance_to(pos)
-            unit = (self.pos - pos).normalize()
-            norm = Vec(unit.y, -unit.x)
-            spin = norm * force * dist
-            self.torque += spin
+        self.torque += torque
 
     def replace(self, NewType):
         links = self.links.copy()

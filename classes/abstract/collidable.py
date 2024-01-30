@@ -1,11 +1,7 @@
 from abc import ABC, abstractmethod
-from time import time
-
-import pygame
-
 from mymath import newGroups
 from classes.abstract.base import Base
-import math
+from pygame import Vector2 as Vec
 
 
 class Collidor(ABC):
@@ -19,9 +15,9 @@ class Collidor(ABC):
 
 
 class Collidable(ABC, Base):
-    restitution = 2000
+    restitution = 2000000
     friction = 2000
-    absorbsion = 100
+    absorbsion = 100000
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -55,51 +51,38 @@ class Collidable(ABC, Base):
         self.forces = []
 
     def computeCollisions(self, dt):
-        pos_self, radius_self = self.pos, self.radius
-        get_restitution_self = self.getRestitution
-        get_vel_at_point_self = self.getVelAtPoint
-        mu_self, moment_inertia_self = self.mu, self.momentInertia
-
+        forceSum = Vec(0,0)
+        torqueSum = 0
         for collide in self.collideWith:
             for other in self.collisionGroups[collide]:
-                get_restitution_other = other.getRestitution
-                get_vel_at_point_other = other.getVelAtPoint
-                mu_other, moment_inertia_other = other.mu, other.momentInertia
+                pos, squish = other.getContactPos(self.pos, self.radius)
+                if pos and pos != self.pos:
+                    vel1 = self.getVelAtPoint(pos)
+                    vel2 = other.getVelAtPoint(pos)
+                    velDiff = vel2 - vel1
+                    friction = min(self.mu * self.momentInertia, other.mu * other.momentInertia)
+                    restitution = min(self.N, other.N)
+                    unit = squish.normalize()
+                    norm = Vec(-unit.y, unit.x)
+                    slip = velDiff*norm
+                    if abs(slip) > 10:
+                        friction /= 2
 
-                pos, force = other.getContactPos(pos_self, radius_self)
-                if pos:
-                    restitution = min(get_restitution_self(), get_restitution_other())
-                    force_sum = force * restitution * Collidable.restitution
+                    frictionForce = norm * slip * (friction * Collidable.friction)
+                    absorbForce = unit * velDiff * unit * (1*Collidable.absorbsion)
+                    squishForce = squish * (restitution * Collidable.restitution)
 
-                    vel1 = get_vel_at_point_self(pos)
-                    vel2 = get_vel_at_point_other(pos)
-                    vel_diff = vel1 - vel2
-                    friction = min(mu_self * moment_inertia_self, mu_other * moment_inertia_other)
+                    force = frictionForce+absorbForce+squishForce
+                    torque = force * (pos-self.pos).rotate(90)
+                    forceSum += force
+                    torqueSum += torque
 
-                    force_length = force.length()
-                    if force_length > 0:
-                        unit = force / force_length
-                        norm = pygame.Vector2(unit.y, -unit.x)
-
-                        vel_diff_length = vel_diff * norm
-                        if abs(vel_diff_length) > 10:
-                            friction /= 2
-
-                        friction_force = norm * (vel_diff * norm) * (friction * Collidable.friction)
-                        restitution_force = unit * (vel_diff * unit) * (restitution * Collidable.absorbsion)
-
-                        force_sum -= friction_force + restitution_force
-
-                        # Utilisation d'une opération vectorielle pour appliquer la force
-                        self.applyForce(pos, force_sum, dt)
-                        other.applyForce(pos, -force_sum, dt)
-
-
-    def addForce(self, other, pos, force, endTime):
-        self.forces.append({"force": force, "pos": pos, "endTime": endTime, "other": other})
+                    other.applyForceTorque(-force, -torque)
+        if forceSum:
+            self.applyForceTorque(forceSum, torqueSum)
 
     @abstractmethod
-    def getContactPos(self, pos, radius):
+    def getContactPos(self, pos, radius) -> (Vec, Vec):
         raise NotImplementedError("Must override getContactPos")
 
     @abstractmethod
@@ -107,8 +90,8 @@ class Collidable(ABC, Base):
         raise NotImplementedError("Must override getVelAtPoint")
 
     @abstractmethod
-    def applyForce(self, pos, force, dt):
-        raise NotImplementedError("Must override collide")
+    def applyForceTorque(self, force, torque):
+        raise NotImplementedError("Must override applyForceTorque")
 
     @abstractmethod
     def getRestitution(self):

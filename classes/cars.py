@@ -33,12 +33,12 @@ class Car(Updatable):
             self.delete()
 
         force = -(-self.speed/self.chuck1.node1.radius-self.chuck1.node1.spin)*(self.torque/self.chuck1.length)*self.chuck1.norm
-        self.chuck1.node1.applyForce(self.chuck1.node2.pos, force, dt)
-        self.chuck1.node2.applyForce(self.chuck1.node2.pos, -force, dt)
+        #self.chuck1.node1.applyForceTorque(self.chuck1.node2.pos, force, dt)
+        #self.chuck1.node2.applyForceTorque(self.chuck1.node2.pos, -force, dt)
 
         force = -(-self.speed/self.chuck2.node2.radius-self.chuck2.node1.spin)*(self.torque/self.chuck2.length)*self.chuck2.norm
-        self.chuck2.node1.applyForce(self.chuck2.node2.pos, force, dt)
-        self.chuck2.node2.applyForce(self.chuck2.node2.pos, -force, dt)
+        #self.chuck2.node1.applyForceTorque(self.chuck2.node2.pos, force, dt)
+        #self.chuck2.node2.applyForceTorque(self.chuck2.node2.pos, -force, dt)
 
 class Pickup(Car):
     def __init__(self, pose, world):

@@ -184,20 +184,9 @@ class Link(Collidable, Updatable, Drawable):
         vel = (self.node1.vel * dist2 + self.node2.vel * dist1) / self.length
         return vel
 
-    def applyForce(self, pos, force, dt):
-
-        diff1 = self.node1.pos - pos
-        diff2 = self.node2.pos - pos
-
-        dist1 = abs(diff1 * self.unit)
-        dist2 = abs(diff2 * self.unit)
-
-        # N
-        self.node1.force += force * (dist2 / self.length)
-        self.node2.force += force * (dist1 / self.length)
-
-        # self.node1.force -= self.norm * force * self.norm
-        # self.node2.force -= self.norm * force * self.norm
+    def applyForceTorque(self, force, torque):
+        self.node1.applyForceTorque(force-self.norm*torque/(self.length/2), 0)
+        self.node2.applyForceTorque(force+self.norm*torque/(self.length/2), 0)
 
 
 def sign(num):
