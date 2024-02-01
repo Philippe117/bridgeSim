@@ -141,3 +141,11 @@ class Node(Collidable, Updatable, Drawable, Linkable):
                 link.connectNode2(newNode)
         self.delete()
         return newNode
+
+    def applyTorqueToLink(self, link, torque=0):
+        force = 0.5*torque*link.length*link.norm
+        self.applyForceTorque(-force, torque)
+        if link.node1 != self:
+            link.node1.applyForceTorque(force, 0)
+        if link.node2 != self:
+            link.node2.applyForceTorque(force, 0)

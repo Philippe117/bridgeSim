@@ -4,7 +4,7 @@ from pygame import Vector2 as Vec
 from classes.abstract.updatable import Updatable
 
 class Car(Updatable):
-    def __init__(self, pose, world, speed=4, torque=4200, size=Vec(3.5, 1), body="ressources/carTemplate.png", wheels="ressources/wheelTemplate.png"):
+    def __init__(self, pose, world, speed=4, torque=2000, size=Vec(3.5, 1), body="ressources/carTemplate.png", wheels="ressources/wheelTemplate.png"):
         super().__init__(world=world, updateGroup=3)
 
         self.wheel1 = TireNode(pygame.Vector2(pose.x - size.x / 2.2, pose.y + 0.5), world, path=wheels)
@@ -32,15 +32,15 @@ class Car(Updatable):
             self.top2.deleteFlag):
             self.delete()
 
-        force = -(-self.speed/self.chuck1.node1.radius-self.chuck1.node1.spin)*(self.torque/self.chuck1.length)*self.chuck1.norm
-        #self.chuck1.node1.applyForceTorque(self.chuck1.node2.pos, force, dt)
-        #self.chuck1.node2.applyForceTorque(self.chuck1.node2.pos, -force, dt)
+        targetSpin = -self.speed/self.chuck1.node1.radius
+        torque = (targetSpin-self.chuck1.node1.spin)*self.torque
+        self.chuck1.node1.applyTorqueToLink(self.chuck1, torque)
 
-        force = -(-self.speed/self.chuck2.node2.radius-self.chuck2.node1.spin)*(self.torque/self.chuck2.length)*self.chuck2.norm
-        #self.chuck2.node1.applyForceTorque(self.chuck2.node2.pos, force, dt)
-        #self.chuck2.node2.applyForceTorque(self.chuck2.node2.pos, -force, dt)
+        targetSpin = -self.speed/self.chuck2.node1.radius
+        torque = (targetSpin-self.chuck2.node1.spin)*self.torque
+        self.chuck2.node1.applyTorqueToLink(self.chuck2, torque)
 
 class Pickup(Car):
     def __init__(self, pose, world):
-        super().__init__(pose, world, 3, 4200, Vec(4, 0.8), body="ressources/pickup.png", wheels="ressources/tire.png")
+        super().__init__(pose, world, 3, 2000, Vec(4, 0.8), body="ressources/pickup.png", wheels="ressources/tire.png")
 
