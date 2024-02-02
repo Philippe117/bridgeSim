@@ -14,6 +14,10 @@ def config(self):
     GroundLink(node2, node3, self)
     GroundNode(pygame.Vector2(-5, -2.5), self)
     GroundNode(pygame.Vector2(-8, 0), self)
+    GroundNode(pygame.Vector2(-11, 0), self)
+    GroundNode(pygame.Vector2(-14, 0), self)
+    GroundNode(pygame.Vector2(-17, 0), self)
+    GroundNode(pygame.Vector2(-20, 0), self)
 
     node4 = GroundNode(pygame.Vector2(50, 0), self)
     node5 = GroundNode(pygame.Vector2(5, 0), self)

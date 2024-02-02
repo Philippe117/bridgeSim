@@ -41,9 +41,6 @@ class Link(Collidable, Updatable, Drawable):
         self.load = 0
         self.color = color
 
-    def getRestitution(self):
-        return self.N * self.mass
-
     def connectNode1(self, node):
         self.node1 = node
         self.node1.addLink(self)
@@ -123,54 +120,43 @@ class Link(Collidable, Updatable, Drawable):
         if pos in (self.node1.pos, self.node2.pos):
             return None
 
-        x_min, x_max = min(self.node1.pos.x, self.node2.pos.x), max(self.node1.pos.x, self.node2.pos.x)
-        y_min, y_max = min(self.node1.pos.y, self.node2.pos.y), max(self.node1.pos.y, self.node2.pos.y)
-        if x_max + maxDist <= pos.x <= x_min - maxDist or y_max + maxDist <= pos.y <= y_min - maxDist:
-            return None
+        # x_min, x_max = min(self.node1.pos.x, self.node2.pos.x), max(self.node1.pos.x, self.node2.pos.x)
+        # y_min, y_max = min(self.node1.pos.y, self.node2.pos.y), max(self.node1.pos.y, self.node2.pos.y)
+        # if x_max + maxDist <= pos.x <= x_min - maxDist or y_max + maxDist <= pos.y <= y_min - maxDist:
+        #     return None
 
-        diff1 = self.node1.pos - pos
-        diff2 = self.node2.pos - pos
-        dist1 = abs(diff1 * self.unit)
-        dist2 = abs(diff2 * self.unit)
-        if dist1 < self.length and dist2 < self.length:
-            diff_to_line = abs((self.node2.pos.y - self.node1.pos.y) * pos.x -
-                               (self.node2.pos.x - self.node1.pos.x) * pos.y +
-                               self.node2.pos.x * self.node1.pos.y -
-                               self.node2.pos.y * self.node1.pos.x) / self.length
+        diff1 = pos - self.node1.pos
+        diff2 = pos - self.node2.pos
+        dist1 = diff1 * self.unit
+        dist2 = diff2 * self.unit
+        if dist1 > 0 > dist2:
+            diff_to_line = abs(diff1*self.norm)
             return diff_to_line if 0 <= diff_to_line <= self.length else None
 
         return None
 
     def getContactPos(self, pos, radius):
         contactPos = None
-        force = None
+        squish = None
 
         if pos in (self.node1.pos, self.node2.pos):
             return None, None
 
-        max_dist_condition_x = max(self.node1.pos.x, self.node2.pos.x) + radius + self.radius
-        min_dist_condition_x = min(self.node1.pos.x, self.node2.pos.x) - radius - self.radius
-        max_dist_condition_y = max(self.node1.pos.y, self.node2.pos.y) + radius + self.radius
-        min_dist_condition_y = min(self.node1.pos.y, self.node2.pos.y) - radius - self.radius
+        maxDist = self.radius + radius
 
-        if min_dist_condition_x < pos.x < max_dist_condition_x and min_dist_condition_y < pos.y < max_dist_condition_y:
-            dist = self.getDistance(pos, maxDist=radius + self.radius)
-
-            if dist and abs(dist) < self.radius + radius:
-                diff1 = self.node1.pos - pos
-                dist1 = abs(diff1 * self.unit)
-
-                if dist1 < self.length:
-                    contactPos = pos + self.norm * radius * sign(diff1 * self.norm)
-                    force = self.norm * (dist - (self.radius + radius)) * sign(diff1 * self.norm) * self.N
+        dist = self.getDistance(pos, maxDist=radius + self.radius)
+        if dist and abs(dist) < maxDist:
+            direction = sign((self.node1.pos - pos) * self.norm)
+            contactPos = pos + self.norm * radius * direction
+            squish = self.norm * (dist - maxDist) * direction
 
         if not contactPos:
-            contactPos, force = self.node1.getContactPos(pos, radius)
+            contactPos, squish = self.node1.getContactPos(pos, radius)
 
         if not contactPos:
-            contactPos, force = self.node2.getContactPos(pos, radius)
+            contactPos, squish = self.node2.getContactPos(pos, radius)
 
-        return contactPos, force
+        return contactPos, squish
 
     def sign(num):
         return -1 if num < 0 else 1

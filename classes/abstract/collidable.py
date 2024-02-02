@@ -51,7 +51,7 @@ class Collidable(ABC, Base):
         self.forces = []
 
     def computeCollisions(self, dt):
-        forceSum = Vec(0,0)
+        forceSum = Vec(0, 0)
         torqueSum = 0
         for collide in self.collideWith:
             for other in self.collisionGroups[collide]:
@@ -68,12 +68,20 @@ class Collidable(ABC, Base):
                     if abs(slip) > 10:
                         friction /= 2
 
-
                     frictionForce = norm * slip * (friction * Collidable.friction)
                     absorbForce = unit * velDiff * unit * (1*Collidable.absorbsion)
                     squishForce = squish * (restitution * Collidable.restitution)
 
+                    # applique la friction
                     force = frictionForce+absorbForce+squishForce
+
+                    if forceSum:
+                        # Limite la force inteligement
+                        norm = (forceSum + force).normalize()
+                        normy = force*norm
+                        sub = normy-max(normy, forceSum*norm)
+                        force -= sub*norm
+
                     torque = force * (pos-self.pos).rotate(90)
                     forceSum += force
                     torqueSum += torque
@@ -93,10 +101,6 @@ class Collidable(ABC, Base):
     @abstractmethod
     def applyForceTorque(self, force, torque):
         raise NotImplementedError("Must override applyForceTorque")
-
-    @abstractmethod
-    def getRestitution(self):
-        raise NotImplementedError("Must override getRestitution")
 
     def delete(self):
         if not self.deleteFlag:

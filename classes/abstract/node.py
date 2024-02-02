@@ -38,9 +38,6 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         self.torque = 0
         self.angle = 0
 
-    def getRestitution(self):
-        return self.N * self.mass
-
     def addLink(self, link):
         self.links.append(link)
 
@@ -94,26 +91,25 @@ class Node(Collidable, Updatable, Drawable, Linkable):
     def getDistance(self, pos, maxDist=10):
         dist = None
         diff = self.pos - pos
-        if abs(diff.x) < maxDist * 2 and abs(diff.y) < maxDist * 2:
+        if abs(diff.x) < maxDist and abs(diff.y) < maxDist:
             dist = self.pos.distance_to(pos)
         return dist
 
     def getContactPos(self, pos, radius):
         contactPos = None
-        force = None
+        squish = None
         maxDist = self.radius + radius
         dist = self.getDistance(pos, maxDist=maxDist)
         if dist is not None:
             if dist > 0:
-                diff = self.pos - pos
-                unit = diff / dist
+                unit = (self.pos - pos).normalize()
                 if dist < (self.radius + radius):
                     contactPos = pos + unit * self.radius
-                    force = unit * (dist - maxDist) * self.N
+                    squish = unit * (dist - maxDist)
             else:
                 contactPos = pos
-                force = Vec(0, 0)
-        return contactPos, force
+                squish = Vec(0, 0)
+        return contactPos, squish
 
     def getVelAtPoint(self, pos):
         if pos != self.pos:

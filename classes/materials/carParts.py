@@ -51,7 +51,7 @@ class TireNode(Node, Destructible):
     tireImage = None
     def __init__(self, pos, world, path="ressources/wheelTemplate.png"):
         super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=500,
-                      radius=0.5, color="#111111", locked=False, N=0.5, mu=1, startDelay=0, drawGroup=2, thickness=0.5)
+                      radius=0.5, color="#111111", locked=False, N=0.1, mu=1, startDelay=0, drawGroup=2, thickness=0.5)
 
         if not TireNode.tireImage:
             TireNode.tireImage = loadImage(path)
