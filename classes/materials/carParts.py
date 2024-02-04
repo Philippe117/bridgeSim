@@ -11,15 +11,12 @@ from OpenGL.GL import *
 class CarLink(Link, Destructible):
     maxLength = 2
     minLength = 0.5
-    pickupImage = None
 
-    def __init__(self, node1, node2, world, path="ressources/carTemplate.png"):
+    def __init__(self, node1, node2, world, image=None):
         super().__init__(node1, node2, world, collisionGroup=-1, density=6000,
                          KP=0.1, KD=0.1, friction=1, brakePoint=1, color="#aa0000", radius=0.3,
                          N=1, mu=1, drawGroup=2, thickness=0.5)
-
-        if not CarLink.pickupImage:
-            CarLink.pickupImage = loadImage(path)
+        self.image = image
 
 
     def draw(self, camera):
@@ -29,7 +26,7 @@ class CarLink(Link, Destructible):
         pos = camera.posToScreen(self.pos)
 
         glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
-        drawImage(CarLink.pickupImage, pos, pygame.Vector2(self.length * camera.zoom * 1.4, 2 * camera.zoom), angle)
+        drawImage(self.image, pos, pygame.Vector2(self.length * camera.zoom * 1.4, 2 * camera.zoom), angle)
 
 
 class CarSuspention(Link, Destructible):
@@ -48,19 +45,17 @@ class CarNode(Node, Destructible):
 
 
 class TireNode(Node, Destructible):
-    tireImage = None
-    def __init__(self, pos, world, path="ressources/wheelTemplate.png"):
+    def __init__(self, pos, world, image):
         super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=500,
                       radius=0.5, color="#111111", locked=False, N=0.2, mu=1, startDelay=0, drawGroup=2, thickness=0.5)
 
-        if not TireNode.tireImage:
-            TireNode.tireImage = loadImage(path)
+        self.image = image
 
 
     def draw(self, camera):
         # super().draw(camera)
         glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
-        drawImage(TireNode.tireImage, camera.posToScreen(self.pos), pygame.Vector2(self.radius, self.radius)*2*camera.zoom, -self.angle)
+        drawImage(self.image, camera.posToScreen(self.pos), pygame.Vector2(self.radius, self.radius)*2*camera.zoom, -self.angle)
         self.camera = camera
 
 

@@ -4,11 +4,24 @@ from pygame import Vector2 as Vec
 from classes.abstract.updatable import Updatable
 
 class Car(Updatable):
-    def __init__(self, pose, world, speed=4, torque=2000, size=Vec(3.5, 1), body="ressources/carTemplate.png", wheels="ressources/wheelTemplate.png"):
+    body = None
+    wheels = None
+
+    def __init__(self, pose, world, speed=4, torque=2000, size=Vec(3.5, 1), body=None, wheels=None):
         super().__init__(world=world, updateGroup=3)
 
-        self.wheel1 = TireNode(pygame.Vector2(pose.x - size.x / 2.2, pose.y + 0.5), world, path=wheels)
-        self.wheel2 = TireNode(pygame.Vector2(pose.x + size.x / 2.2, pose.y + 0.5), world, path=wheels)
+        if not body:
+            if not Car.body:
+                Car.body = loadImage("ressources/carTemplate.png")
+            body = Car.body
+
+        if not wheels:
+            if not Car.wheels:
+                Car.wheels = loadImage("ressources/wheelTemplate.png")
+            wheels = Car.wheels
+
+        self.wheel1 = TireNode(pygame.Vector2(pose.x - size.x / 2.2, pose.y + 0.5), world, image=wheels)
+        self.wheel2 = TireNode(pygame.Vector2(pose.x + size.x / 2.2, pose.y + 0.5), world, image=wheels)
         self.top1 = CarNode(pygame.Vector2(pose.x - size.x / 2, pose.y + size.y + 0.5), world)
         self.top2 = CarNode(pygame.Vector2(pose.x + size.x / 2, pose.y + size.y + 0.5), world)
         self.chuck1 = CarSuspention(self.wheel1, self.top1, world)
@@ -16,7 +29,10 @@ class Car(Updatable):
         CarSuspention(self.wheel1, self.top2, world)
         CarSuspention(self.wheel2, self.top1, world)
         CarSuspention(self.wheel1, self.wheel2, world)
-        self.body = CarLink(self.top1, self.top2, world, path=body)
+
+
+
+        self.body = CarLink(self.top1, self.top2, world, image=body)
         self.torque = torque
         self.speed = speed
 
@@ -41,6 +57,14 @@ class Car(Updatable):
         self.chuck2.node1.applyTorqueToLink(self.chuck2, torque)
 
 class Pickup(Car):
+    body = None
+    wheels = None
     def __init__(self, pose, world):
-        super().__init__(pose, world, 4, 400, Vec(4, 0.8), body="ressources/pickup.png", wheels="ressources/tire.png")
+
+        if not Pickup.body:
+            Pickup.body = loadImage("ressources/pickup.png")
+        if not Pickup.wheels:
+            Pickup.wheels = loadImage("ressources/tire.png")
+
+        super().__init__(pose, world, 4, 400, Vec(4, 0.8), body=Pickup.body, wheels=Pickup.wheels)
 
