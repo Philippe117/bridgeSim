@@ -79,7 +79,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         X2 = Vec(X1.y, -X1.x)
         drawLine(pos - X1, pos + X1, 2)
         drawLine(pos - X2, pos + X2, 2)
-        self.camera = camera
+        # self.camera = camera
 
     def delete(self):
         if not self.deleteFlag:

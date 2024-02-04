@@ -60,7 +60,6 @@ class Link(Collidable, Updatable, Drawable):
             pos3 = camera.posToScreen(self.node2.pos - self.norm * self.radius)
             pos4 = camera.posToScreen(self.node1.pos - self.norm * self.radius)
 
-            #glColor3f(self.color[0], self.color.g, self.color.b)
             setColorHex(self.color)
             glBegin(GL_QUADS)
             glVertex2f(pos1.x, pos1.y)
@@ -77,7 +76,7 @@ class Link(Collidable, Updatable, Drawable):
             glVertex2f(pos3.x, pos3.y)
             glVertex2f(pos4.x, pos4.y)
             glEnd()
-        self.camera = camera
+        # self.camera = camera
 
     def update(self, dt):
         super(Link, self).update(dt)
