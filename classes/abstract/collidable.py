@@ -52,44 +52,46 @@ class Collidable(ABC, Base):
         self.forces = []
 
     def computeCollisions(self, dt):
-        forceSum = Vec(0, 0)
-        torqueSum = 0
+        maxSquish = Vec(0, 0)
+        maxPos = 0
+        maxlen = 0
+        maxOther = None
         for collide in self.collideWith:
             for other in self.collisionGroups[collide]:
                 pos, squish = other.getContactPos(self.pos, self.radius)
                 if pos and pos != self.pos:
-                    vel1 = self.getVelAtPoint(pos)
-                    vel2 = other.getVelAtPoint(pos)
-                    velDiff = vel2 - vel1
-                    friction = min(self.mu * self.momentInertia, other.mu * other.momentInertia)
-                    restitution = min(self.N*self.mass, other.N*other.mass)
-                    unit = squish.normalize()
-                    norm = Vec(-unit.y, unit.x)
-                    slip = velDiff*norm
-                    if abs(slip) > 10:
-                        friction /= 2
+                    lenght = squish.length()
+                    if lenght > maxlen:
+                        maxlen = lenght
+                        maxSquish = squish
+                        maxPos = pos
+                        maxOther = other
 
-                    frictionForce = norm * slip * (friction * Collidable.friction)
-                    absorbForce = max(0, unit * velDiff) * unit * (1*Collidable.absorbsion)
-                    squishForce = squish * (restitution * Collidable.restitution)
+        if maxlen > 0:
+            pos, squish, other = maxPos, maxSquish, maxOther
 
-                    # applique la friction
-                    force = frictionForce+absorbForce+squishForce
+            vel1 = self.getVelAtPoint(pos)
+            vel2 = other.getVelAtPoint(pos)
+            velDiff = vel2 - vel1
+            friction = min(self.mu * self.momentInertia, other.mu * other.momentInertia)
+            restitution = min(self.N * self.mass, other.N * other.mass)
+            unit = squish.normalize()
+            norm = Vec(-unit.y, unit.x)
+            slip = velDiff * norm
+            if abs(slip) > 10:
+                friction /= 2
 
-                    # if forceSum:
-                    #     # Limite la force inteligement
-                    #     norm = (squishForce).normalize()
-                    #     normy = squishForce*norm
-                    #     sub = normy-max(normy, forceSum*norm)
-                    #     force -= sub*norm
+            frictionForce = norm * slip * (friction * Collidable.friction)
+            absorbForce = max(0, unit * velDiff) * unit * (1 * Collidable.absorbsion)
+            squishForce = squish * (restitution * Collidable.restitution)
 
-                    torque = force * (pos-self.pos).rotate(90)
-                    forceSum += force
-                    torqueSum += torque
+            # applique la friction
+            force = frictionForce + absorbForce + squishForce
 
-                    other.applyForceTorque(-force, -torque)
-        if forceSum:
-            self.applyForceTorque(forceSum, torqueSum)
+            torque = force * (pos - self.pos).rotate(90)
+
+            other.applyForceTorque(-force, -torque)
+            self.applyForceTorque(force, torque)
 
     @abstractmethod
     def getContactPos(self, pos, radius) -> (Vec, Vec):
