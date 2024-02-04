@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from mymath import newGroups
 from classes.abstract.base import Base
 from pygame import Vector2 as Vec
+from myGL import setColorHex, drawDisk, setColorHex, drawLine
 
 
 class Collidor(ABC):
@@ -15,9 +16,9 @@ class Collidor(ABC):
 
 
 class Collidable(ABC, Base):
-    restitution = 2000000
-    friction = 2000
-    absorbsion = 100000
+    restitution = 2000
+    friction = 1000
+    absorbsion = 50000
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -61,7 +62,7 @@ class Collidable(ABC, Base):
                     vel2 = other.getVelAtPoint(pos)
                     velDiff = vel2 - vel1
                     friction = min(self.mu * self.momentInertia, other.mu * other.momentInertia)
-                    restitution = min(self.N, other.N)
+                    restitution = min(self.N*self.mass, other.N*other.mass)
                     unit = squish.normalize()
                     norm = Vec(-unit.y, unit.x)
                     slip = velDiff*norm
@@ -69,18 +70,18 @@ class Collidable(ABC, Base):
                         friction /= 2
 
                     frictionForce = norm * slip * (friction * Collidable.friction)
-                    absorbForce = unit * velDiff * unit * (1*Collidable.absorbsion)
+                    absorbForce = max(0, unit * velDiff) * unit * (1*Collidable.absorbsion)
                     squishForce = squish * (restitution * Collidable.restitution)
 
                     # applique la friction
                     force = frictionForce+absorbForce+squishForce
 
-                    if forceSum:
-                        # Limite la force inteligement
-                        norm = (forceSum + force).normalize()
-                        normy = force*norm
-                        sub = normy-max(normy, forceSum*norm)
-                        force -= sub*norm
+                    # if forceSum:
+                    #     # Limite la force inteligement
+                    #     norm = (squishForce).normalize()
+                    #     normy = squishForce*norm
+                    #     sub = normy-max(normy, forceSum*norm)
+                    #     force -= sub*norm
 
                     torque = force * (pos-self.pos).rotate(90)
                     forceSum += force

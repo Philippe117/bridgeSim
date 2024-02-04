@@ -8,8 +8,8 @@ from math import cos, sin
 
 class Node(Collidable, Updatable, Drawable, Linkable):
 
-    def __init__(self, pos, world, density=1000, radius=0.12, locked=False, color="#ffffff", collisionGroup=0,
-                 collideWith=None, drawGroup=-1, updateGroup=0, N=10, mu=1, startDelay=5, thickness=0.2):
+    def __init__(self, pos, world, density=1000, radius=0.12, locked=False, color="#ffff00", collisionGroup=0,
+                 collideWith=None, drawGroup=-1, updateGroup=0, N=1, mu=1, startDelay=5, thickness=0.2):
 
         # Utilisation de formules directes plutôt que des variables intermédiaires
         self.surface = 3.14159 * radius**2
@@ -79,6 +79,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         X2 = Vec(X1.y, -X1.x)
         drawLine(pos - X1, pos + X1, 2)
         drawLine(pos - X2, pos + X2, 2)
+        self.camera = camera
 
     def delete(self):
         if not self.deleteFlag:
@@ -89,11 +90,11 @@ class Node(Collidable, Updatable, Drawable, Linkable):
                 link.delete()
 
     def getDistance(self, pos, maxDist=10):
-        dist = None
         diff = self.pos - pos
         if abs(diff.x) < maxDist and abs(diff.y) < maxDist:
             dist = self.pos.distance_to(pos)
-        return dist
+            if dist < maxDist:
+                return dist
 
     def getContactPos(self, pos, radius):
         contactPos = None
@@ -104,8 +105,19 @@ class Node(Collidable, Updatable, Drawable, Linkable):
             if dist > 0:
                 unit = (self.pos - pos).normalize()
                 if dist < (self.radius + radius):
-                    contactPos = pos + unit * self.radius
+                    contactPos = self.pos - unit * self.radius
                     squish = unit * (dist - maxDist)
+
+                    # try:
+                    #     campos = self.camera.posToScreen(contactPos)
+                    #     campos2 = self.camera.posToScreen(contactPos+squish*10)
+                    #     # Utilisation directe des méthodes de dessin
+                    #     setColorHex("#ff0000")
+                    #     drawLine(campos, campos2, 1)
+                    #     drawDisk(campos, 0.05 * self.camera.zoom, 6)
+                    # except:
+                    #     pass
+
             else:
                 contactPos = pos
                 squish = Vec(0, 0)
@@ -124,6 +136,15 @@ class Node(Collidable, Updatable, Drawable, Linkable):
     def applyForceTorque(self, force, torque):
         self.force += force
         self.torque += torque
+
+        # try:
+        #     campos = self.camera.posToScreen(self.pos)
+        #     campos2 = self.camera.posToScreen(self.pos + force / 100000)
+        #     # Utilisation directe des méthodes de dessin
+        #     setColorHex("#00ff00")
+        #     drawLine(campos, campos2, 1)
+        # except:
+        #     pass
 
     def replace(self, NewType):
         links = self.links.copy()

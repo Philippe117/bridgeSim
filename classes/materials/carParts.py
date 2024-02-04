@@ -37,7 +37,7 @@ class CarSuspention(Link, Destructible):
     minLength = 0.5
     def __init__(self, node1, node2, world):
         super().__init__(node1, node2, world, collisionGroup=-1, density=6000,
-                         KP=0.012, KD=0.01, friction=1, brakePoint=1, color="#666666", radius=0.1,
+                         KP=0.012, KD=0.16, friction=1, brakePoint=1, color="#666666", radius=0.1,
                          N=1, mu=1, drawGroup=1, thickness=0.5)
 
 
@@ -61,5 +61,6 @@ class TireNode(Node, Destructible):
         # super().draw(camera)
         glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
         drawImage(TireNode.tireImage, camera.posToScreen(self.pos), pygame.Vector2(self.radius, self.radius)*2*camera.zoom, -self.angle)
+        self.camera = camera
 
 

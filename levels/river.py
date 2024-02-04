@@ -2,6 +2,7 @@ from classes.materials.wood import WoodLink, WoodNode
 from classes.materials.pave import PaveLink, PaveNode
 from classes.materials.ground import GroundNode, GroundLink
 import pygame
+from classes.abstract.node import Node
 from classes.garage import Garage
 
 def config(self):
@@ -18,6 +19,9 @@ def config(self):
     GroundNode(pygame.Vector2(-14, 0), self)
     GroundNode(pygame.Vector2(-17, 0), self)
     GroundNode(pygame.Vector2(-20, 0), self)
+
+    # Node(pygame.Vector2(0, 1), self, radius=1, locked=True, collisionGroup=2, drawGroup=1)
+
 
     node4 = GroundNode(pygame.Vector2(50, 0), self)
     node5 = GroundNode(pygame.Vector2(5, 0), self)

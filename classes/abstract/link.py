@@ -4,12 +4,12 @@ from classes.abstract.updatable import Updatable
 from classes.abstract.drawable import Drawable
 from classes.abstract.node import Node
 from OpenGL.GL import glBegin, GL_QUADS, glVertex2f, glEnd, GL_LINE_LOOP, glColor3f, glLineWidth
-from myGL import setColorHex
+from myGL import setColorHex, drawDisk, setColorHex, drawLine
 
 class Link(Collidable, Updatable, Drawable):
     maxLength = 2
     minLength = 0.5
-    KP = 30000
+    KP = 50000
     KD = 3000
     Friction = 1
     breakpoint = 800000
@@ -77,6 +77,7 @@ class Link(Collidable, Updatable, Drawable):
             glVertex2f(pos3.x, pos3.y)
             glVertex2f(pos4.x, pos4.y)
             glEnd()
+        self.camera = camera
 
     def update(self, dt):
         super(Link, self).update(dt)
@@ -147,14 +148,24 @@ class Link(Collidable, Updatable, Drawable):
         dist = self.getDistance(pos, maxDist=radius + self.radius)
         if dist and abs(dist) < maxDist:
             direction = sign((self.node1.pos - pos) * self.norm)
-            contactPos = pos + self.norm * radius * direction
+            contactPos = pos + self.norm * (radius + dist - maxDist) * direction
             squish = self.norm * (dist - maxDist) * direction
+        #
+        # if not contactPos:
+        #     contactPos, squish = self.node1.getContactPos(pos, radius)
+        #
+        # if not contactPos:
+        #     contactPos, squish = self.node2.getContactPos(pos, radius)
 
-        if not contactPos:
-            contactPos, squish = self.node1.getContactPos(pos, radius)
-
-        if not contactPos:
-            contactPos, squish = self.node2.getContactPos(pos, radius)
+        # try:
+        #     campos = self.camera.posToScreen(contactPos)
+        #     campos2 = self.camera.posToScreen(contactPos+squish*10)
+        #     # Utilisation directe des méthodes de dessin
+        #     setColorHex("#ff0000")
+        #     drawLine(campos, campos2, 1)
+        #     drawDisk(campos, 0.05 * self.camera.zoom, 6)
+        # except:
+        #     pass
 
         return contactPos, squish
 
