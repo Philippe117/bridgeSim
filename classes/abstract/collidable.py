@@ -16,9 +16,9 @@ class Collidor(ABC):
 
 
 class Collidable(ABC, Base):
-    restitution = 2000
-    friction = 1000
-    absorbsion = 50000
+    restitution = 8000
+    friction = 4000
+    absorbsion = 200000
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
