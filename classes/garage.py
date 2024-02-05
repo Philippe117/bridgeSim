@@ -12,12 +12,13 @@ class Garage(Building):
     image = None
 
 
-    def __init__(self, pos, world):
+    def __init__(self, pos, world, destination):
 
         super().__init__(pos=pos, world=world, drawingGroup=0, updateGroup=1)
         self.delay = 5
         self.NextCarTime = time()+self.delay
         self.greenlight = True
+        self.destination = destination
 
         if not Garage.image:
             Garage.image = loadImage("ressources/garage.png")
@@ -25,7 +26,7 @@ class Garage(Building):
     def update(self, dt):
         curTime = time()
         if curTime > self.NextCarTime:
-            Pickup(self.pos, self.world)
+            Pickup(pos=self.pos+Vec(0, -0.3), world=self.world, destination=self.destination)
             self.NextCarTime = curTime+self.delay
 
     def draw(self, camera):
