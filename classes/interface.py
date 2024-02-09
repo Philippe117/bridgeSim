@@ -183,7 +183,7 @@ class Interface:
             pass
         elif keys[pygame.K_0] and not self.onsCar:
             pos = pygame.Vector2(-18, 0.7)
-            Car(pos, world)
+            Car(pos, world, )
         elif keys[pygame.K_q]:
             running = False
             print("Quitting")

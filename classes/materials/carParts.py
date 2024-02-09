@@ -47,7 +47,7 @@ class CarNode(Node, Destructible):
 class TireNode(Node, Destructible):
     def __init__(self, pos, world, image):
         super().__init__(pos=pos, world=world, collisionGroup=3, collideWith=[0, 2], density=500,
-                      radius=0.5, color="#111111", locked=False, N=0.2, mu=1, startDelay=0, drawGroup=2, thickness=0.5)
+                      radius=0.6, color="#111111", locked=False, N=0.2, mu=1, startDelay=0, drawGroup=2, thickness=0.5)
 
         self.image = image
 

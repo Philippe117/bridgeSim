@@ -24,13 +24,13 @@ def config(self):
     # Node(pygame.Vector2(0, 1), self, radius=1, locked=True, collisionGroup=2, drawGroup=1)
 
 
-    node4 = GroundNode(pygame.Vector2(50, 0), self)
-    node5 = GroundNode(pygame.Vector2(5, 0), self)
+    node4 = GroundNode(pygame.Vector2(50, 0.5), self)
+    node5 = GroundNode(pygame.Vector2(5, 0.5), self)
     node6 = GroundNode(pygame.Vector2(5, -10), self)
     GroundLink(node4, node5, self)
     GroundLink(node5, node6, self)
     GroundNode(pygame.Vector2(5, -2.5), self)
-    GroundNode(pygame.Vector2(8, 0), self)
+    GroundNode(pygame.Vector2(8, 0.5), self)
 
     warehouse = Warehouse(pygame.Vector2(18, 0.5), self)
     Garage(pygame.Vector2(-18, 0.5), self, warehouse)

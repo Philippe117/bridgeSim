@@ -10,8 +10,11 @@ from classes.abstract.drawable import Drawable
 
 class Building(Updatable, Drawable):
 
-    def __init__(self, pos, world, drawingGroup, updateGroup):
-        super().__init__(world=world, pos=pos, drawGroup=drawingGroup, updateGroup=updateGroup)
+    def __init__(self, **kwargs):
+        pos = kwargs.get("pos")
+        world = kwargs.get("world")
+
+        super().__init__(**kwargs)
 
         # world, N, mu, radius, pos, collisionGroup, drawGroup, updateGroup, collideWith
         self.pos = pos
@@ -20,13 +23,5 @@ class Building(Updatable, Drawable):
     def delete(self):
         if not self.deleteFlag:
             super().delete()
-
-    def getDistance(self, pos, maxDist=10):
-        dist = None
-        if pos != self.pos:
-            diff = self.pos - pos
-            if abs(diff.x) < (maxDist)*2 and abs(diff.y) < (maxDist)*2:
-                dist = math.dist(self.pos, pos)
-        return dist
 
 

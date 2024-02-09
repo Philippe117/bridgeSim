@@ -1,6 +1,5 @@
 from classes.abstract.building import Building
-from time import time
-from classes.cars import Pickup
+from classes.abstract.ressourceHolder import RessourceHolder
 from pygame import Vector2 as Vec
 from myGL import loadImage, drawImage
 from OpenGL.GL import *
@@ -8,13 +7,13 @@ from OpenGL.GL import *
 
 # font = pygame.font.SysFont("silomttf", 48)
 
-class Warehouse(Building):
+class Warehouse(Building, RessourceHolder):
     image = None
 
 
     def __init__(self, pos, world):
 
-        super().__init__(pos=pos, world=world, drawingGroup=0, updateGroup=1)
+        super().__init__(pos=pos, world=world, drawGroup=0, updateGroup=1)
 
         if not Warehouse.image:
             Warehouse.image = loadImage("ressources/warehouse.png")

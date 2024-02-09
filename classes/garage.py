@@ -1,20 +1,23 @@
 from classes.abstract.building import Building
+from classes.abstract.ressourceHolder import RessourceHolder
 from time import time
 from classes.cars import Pickup
 from pygame import Vector2 as Vec
 from myGL import loadImage, drawImage
 from OpenGL.GL import *
+from classes.abstract.updatable import Updatable
+from classes.abstract.drawable import Drawable
 
 
 # font = pygame.font.SysFont("silomttf", 48)
 
-class Garage(Building):
+class Garage(RessourceHolder, Building):
     image = None
 
 
     def __init__(self, pos, world, destination):
 
-        super().__init__(pos=pos, world=world, drawingGroup=0, updateGroup=1)
+        super().__init__(pos=pos, world=world, drawGroup=0, updateGroup=1, ressources={"wood": 50, "steel": 10})
         self.delay = 5
         self.NextCarTime = time()+self.delay
         self.greenlight = True
@@ -26,8 +29,12 @@ class Garage(Building):
     def update(self, dt):
         curTime = time()
         if curTime > self.NextCarTime:
-            Pickup(pos=self.pos+Vec(0, -0.3), world=self.world, destination=self.destination)
-            self.NextCarTime = curTime+self.delay
+            ressources = {"wood": 10, "steel": 5}
+            if self.checkIfEnough(ressources):
+                car = Pickup(pos=self.pos+Vec(0, -0.3), world=self.world, destination=self.destination)
+                self.pushRessources(car, ressources)
+
+                self.NextCarTime = curTime+self.delay
 
     def draw(self, camera):
 

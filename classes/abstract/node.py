@@ -46,7 +46,7 @@ class Node(Collidable, Updatable, Drawable, Linkable):
         if not self.locked:
             if self.age > 0:
                 self.force += self.world.gravity * self.mass * min(1, (self.age) * 1)
-            maxiForce = self.mass*300
+            maxiForce = self.mass*600
             maxiTorque = self.momentInertia*100
 
             if self.force.length() > 0:
