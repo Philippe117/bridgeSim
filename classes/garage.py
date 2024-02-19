@@ -30,11 +30,15 @@ class Garage(RessourceHolder, Building):
         curTime = time()
         if curTime > self.NextCarTime:
             ressources = {"wood": 10, "steel": 5}
+
+            self.addRessources(ressources)
             if self.checkIfEnough(ressources):
                 car = Pickup(pos=self.pos+Vec(0, -0.3), world=self.world, destination=self.destination)
                 self.pushRessources(car, ressources)
 
                 self.NextCarTime = curTime+self.delay
+
+
 
     def draw(self, camera):
 
