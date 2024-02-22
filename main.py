@@ -52,7 +52,7 @@ while running:
     pygame.display.flip()
     clock.tick(fps)  # limits FPS to 60
     fpsAvg += (clock.get_fps()-fpsAvg)*0.01
-    if i==0:
-        print("Framerate:", fpsAvg)
+    #if i==0:
+    #    print("Framerate:", fpsAvg)
 
 pygame.quit()

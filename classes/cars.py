@@ -89,7 +89,7 @@ class Pickup(Car, RessourceHolder):
             dist = self.destination.pos.x-self.pos.x
             self.speed = min(self.maxSpeed, max(-self.maxSpeed, dist))
 
-            if abs(dist < 0.1):
+            if abs(dist) < 0.1:
                 self.pushRessources(self.destination, self.ressources)
                 self.body.delete()
                 self.chuck1.delete()

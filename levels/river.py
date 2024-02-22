@@ -2,9 +2,9 @@ from classes.materials.wood import WoodLink, WoodNode
 from classes.materials.pave import PaveLink, PaveNode
 from classes.materials.ground import GroundNode, GroundLink
 import pygame
-from classes.abstract.node import Node
-from classes.garage import Garage
-from classes.warehouse import Warehouse
+from classes.buildings.garage import Garage
+from classes.buildings.warehouse import Warehouse
+from classes.buildings.lumberMill import LumberMill
 
 def config(self):
     nb = 5
@@ -32,8 +32,9 @@ def config(self):
     GroundNode(pygame.Vector2(5, -2.5), self)
     GroundNode(pygame.Vector2(8, 0.5), self)
 
-    warehouse = Warehouse(pygame.Vector2(18, 0.5), self)
-    Garage(pygame.Vector2(-18, 0.5), self, warehouse)
+    lumberMill = LumberMill(pygame.Vector2(18, 1), self)
+    garage = Garage(pygame.Vector2(-18, 0.5), self, lumberMill)
+    lumberMill.destination = garage
 
 
     nodeA, nodeB = node2, PaveNode(pygame.Vector2(-3, 0), self)

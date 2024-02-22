@@ -17,7 +17,7 @@ class Garage(RessourceHolder, Building):
 
     def __init__(self, pos, world, destination):
 
-        super().__init__(pos=pos, world=world, drawGroup=0, updateGroup=1, ressources={"wood": 50, "steel": 10})
+        super().__init__(pos=pos, world=world, drawGroup=0, updateGroup=1, ressources={})
         self.delay = 5
         self.NextCarTime = time()+self.delay
         self.greenlight = True
@@ -27,17 +27,17 @@ class Garage(RessourceHolder, Building):
             Garage.image = loadImage("ressources/garage.png")
 
     def update(self, dt):
-        curTime = time()
-        if curTime > self.NextCarTime:
-            ressources = {"wood": 10, "steel": 5}
+        # curTime = time()
+        # if curTime > self.NextCarTime:
+        ressources = {"wood": 1*dt, "steel": 1*dt}
+        #print("garage" + str(self.ressources))
 
-            self.addRessources(ressources)
-            if self.checkIfEnough(ressources):
-                car = Pickup(pos=self.pos+Vec(0, -0.3), world=self.world, destination=self.destination)
-                self.pushRessources(car, ressources)
+        self.addRessources(ressources)
 
-                self.NextCarTime = curTime+self.delay
-
+        transportedRessources = {"wood": 10, "steel": 5}
+        if self.checkIfEnough(transportedRessources):
+            car = Pickup(pos=self.pos+Vec(0, -0.3), world=self.world, destination=self.destination)
+            self.pushRessources(car, transportedRessources)
 
 
     def draw(self, camera):

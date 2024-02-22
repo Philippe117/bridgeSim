@@ -12,7 +12,7 @@ class Link(Collidable, Updatable, Drawable):
     KP = 50000
     KD = 3000
     Friction = 1
-    breakpoint = 800000
+    breakpoint = 1000000
 
     def __init__(self, node1: Node, node2: Node, world: object, collisionGroup=0, density=1,
                  KP=1, KD=1, friction=1, brakePoint=1, color="#888888", radius=0.1,
