@@ -17,6 +17,7 @@ class CarLink(Link, Destructible):
                          KP=0.1, KD=0.1, friction=1, brakePoint=1, color="#aa0000", radius=0.3,
                          N=1, mu=1, drawGroup=2, thickness=0.5)
         self.image = image
+        self.direction = 1
 
 
     def draw(self, camera):
@@ -26,7 +27,7 @@ class CarLink(Link, Destructible):
         pos = camera.posToScreen(self.pos)
 
         glColor3f(1, 1, 1)  # Couleur blanche (la texture fournit la couleur)
-        drawImage(self.image, pos, pygame.Vector2(self.length * camera.zoom * 1.4, 2 * camera.zoom), angle)
+        drawImage(self.image, pos, pygame.Vector2(self.direction * self.length * camera.zoom * 1.4, 2 * camera.zoom), angle)
 
 
 class CarSuspention(Link, Destructible):

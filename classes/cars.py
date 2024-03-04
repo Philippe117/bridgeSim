@@ -69,6 +69,9 @@ class Car(Updatable):
             torque = min(self.torque, max(-self.torque, (targetSpin-self.chuck2.node1.spin)*10000))
             self.chuck2.node1.applyTorqueToLink(self.chuck2, torque)
 
+            if self.speed != 0:
+                self.body.direction = self.speed/abs(self.speed)
+
 class Pickup(Car, RessourceHolder):
     body = None
     wheels = None
