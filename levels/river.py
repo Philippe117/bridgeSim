@@ -25,14 +25,14 @@ def config(self):
 
 
     node4 = GroundNode(pygame.Vector2(50, 0.5), self)
-    node5 = GroundNode(pygame.Vector2(5, 0.5), self)
+    node5 = GroundNode(pygame.Vector2(5, 0), self)
     node6 = GroundNode(pygame.Vector2(5, -10), self)
     GroundLink(node4, node5, self)
     GroundLink(node5, node6, self)
     GroundNode(pygame.Vector2(5, -2.5), self)
-    GroundNode(pygame.Vector2(8, 0.5), self)
+    GroundNode(pygame.Vector2(8, 0), self)
 
-    lumberMill = LumberMill(pygame.Vector2(18, 1), self)
+    lumberMill = LumberMill(pygame.Vector2(18, 0.5), self)
     garage = Garage(pygame.Vector2(-18, 0.5), self, lumberMill)
     lumberMill.destination = garage
 
